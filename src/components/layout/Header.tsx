@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, BookOpen, CheckSquare, GraduationCap, FileText } from "lucide-react";
+import { Menu, X, BookOpen, CheckSquare, GraduationCap, FileText, Calculator } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import schoolLogo from "@/assets/school-logo.png";
@@ -12,6 +12,7 @@ const navigation = [
   { name: "בודק ספר", href: "/book-checker", icon: FileText },
   { name: "תרגול", href: "/practice", icon: FileText },
   { name: "ספר פרויקט", href: "/book", icon: FileText },
+  { name: "מחשבון ציון", href: "/grade-calculator", icon: Calculator },
 ];
 
 export function Header() {

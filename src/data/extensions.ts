@@ -4337,6 +4337,423 @@ public class ImageGenerationActivity extends AppCompatActivity {
       "הוסף אפשרות לשמור את התמונה שנוצרה לגלריה",
       "נסה prompts שונים לקבלת תוצאות מגוונות"
     ]
+  },
+  {
+    id: "recyclerview",
+    name: "RecyclerView",
+    nameEn: "RecyclerView",
+    category: "required",
+    points: 1,
+    description: "רכיב מתקדם להצגת רשימות גדולות עם ביצועים גבוהים ומחזור אלמנטים.",
+    theory: `RecyclerView הוא רכיב מתקדם להצגת רשימות נתונים גדולות ביעילות.
+
+העיקרון המרכזי: מחזור (Recycling) של אלמנטים - במקום ליצור View חדש לכל פריט, 
+RecyclerView משתמש שוב באלמנטים שיצאו מהמסך.
+
+יתרונות על ListView:
+• ביצועים טובים יותר ברשימות גדולות
+• גמישות בפריסה (אנכי, אופקי, Grid)
+• אנימציות מובנות
+• תמיכה בהוספה/הסרה של פריטים
+
+רכיבים עיקריים:
+• RecyclerView - הרכיב הראשי
+• Adapter - מחבר בין הנתונים לתצוגה
+• ViewHolder - מחזיק את ה-Views של כל פריט
+• LayoutManager - קובע את סידור הפריטים
+
+תבנית ViewHolder:
+• מונע קריאות יקרות ל-findViewById
+• שומר הפניות ל-Views בזיכרון
+• משפר ביצועים בגלילה`,
+    codeExample: `// ========================================
+// מחלקת העצם
+// ========================================
+public class Product {
+    private int id;
+    private String name;
+    private double price;
+    private String imageUrl;
+    
+    public Product(int id, String name, double price, String imageUrl) {
+        this.id = id;
+        this.name = name;
+        this.price = price;
+        this.imageUrl = imageUrl;
+    }
+    
+    // Getters
+    public int getId() { return id; }
+    public String getName() { return name; }
+    public double getPrice() { return price; }
+    public String getImageUrl() { return imageUrl; }
+}
+
+// ========================================
+// ViewHolder - מחזיק את ה-Views
+// ========================================
+public class ProductViewHolder extends RecyclerView.ViewHolder {
+    ImageView ivProduct;
+    TextView tvName;
+    TextView tvPrice;
+    Button btnAddToCart;
+    
+    public ProductViewHolder(@NonNull View itemView) {
+        super(itemView);
+        // מציאת ה-Views פעם אחת בלבד!
+        ivProduct = itemView.findViewById(R.id.ivProduct);
+        tvName = itemView.findViewById(R.id.tvName);
+        tvPrice = itemView.findViewById(R.id.tvPrice);
+        btnAddToCart = itemView.findViewById(R.id.btnAddToCart);
+    }
+    
+    // מתודה לאכלוס הנתונים ב-Views
+    public void bind(Product product, OnProductClickListener listener) {
+        tvName.setText(product.getName());
+        tvPrice.setText(String.format("₪%.2f", product.getPrice()));
+        
+        // טעינת תמונה (דוגמה עם Glide)
+        // Glide.with(itemView.getContext())
+        //     .load(product.getImageUrl())
+        //     .into(ivProduct);
+        
+        // הגדרת listener ללחיצה
+        btnAddToCart.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onAddToCart(product);
+            }
+        });
+        
+        itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onProductClick(product);
+            }
+        });
+    }
+}
+
+// ========================================
+// Adapter - מחבר בין נתונים לתצוגה
+// ========================================
+public class ProductAdapter extends RecyclerView.Adapter<ProductViewHolder> {
+    private ArrayList<Product> products;
+    private OnProductClickListener listener;
+    
+    // ממשק לטיפול באירועים
+    public interface OnProductClickListener {
+        void onProductClick(Product product);
+        void onAddToCart(Product product);
+    }
+    
+    public ProductAdapter(ArrayList<Product> products, OnProductClickListener listener) {
+        this.products = products;
+        this.listener = listener;
+    }
+    
+    @NonNull
+    @Override
+    public ProductViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        // נקרא רק כשצריך ליצור ViewHolder חדש
+        View view = LayoutInflater.from(parent.getContext())
+            .inflate(R.layout.item_product, parent, false);
+        return new ProductViewHolder(view);
+    }
+    
+    @Override
+    public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
+        // נקרא לכל פריט - כאן ממלאים את הנתונים
+        Product product = products.get(position);
+        holder.bind(product, listener);
+    }
+    
+    @Override
+    public int getItemCount() {
+        return products.size();
+    }
+    
+    // מתודות לעדכון הרשימה
+    public void addProduct(Product product) {
+        products.add(product);
+        notifyItemInserted(products.size() - 1);
+    }
+    
+    public void removeProduct(int position) {
+        products.remove(position);
+        notifyItemRemoved(position);
+    }
+    
+    public void updateProducts(ArrayList<Product> newProducts) {
+        products.clear();
+        products.addAll(newProducts);
+        notifyDataSetChanged();
+    }
+}
+
+// ========================================
+// שימוש ב-Activity
+// ========================================
+public class ProductListActivity extends AppCompatActivity 
+        implements ProductAdapter.OnProductClickListener {
+    
+    private RecyclerView recyclerView;
+    private ProductAdapter adapter;
+    private ArrayList<Product> products;
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_product_list);
+        
+        recyclerView = findViewById(R.id.recyclerView);
+        
+        // הגדרת LayoutManager - סידור אנכי
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        
+        // אפשרויות נוספות:
+        // Grid בשתי עמודות:
+        // recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        
+        // סידור אופקי:
+        // recyclerView.setLayoutManager(new LinearLayoutManager(this, 
+        //     LinearLayoutManager.HORIZONTAL, false));
+        
+        // טעינת נתונים
+        products = loadProducts();
+        
+        // יצירת Adapter וחיבור
+        adapter = new ProductAdapter(products, this);
+        recyclerView.setAdapter(adapter);
+    }
+    
+    private ArrayList<Product> loadProducts() {
+        ArrayList<Product> list = new ArrayList<>();
+        // טעינה מ-DB או API...
+        list.add(new Product(1, "טלפון", 2999.99, "url1"));
+        list.add(new Product(2, "אוזניות", 299.99, "url2"));
+        return list;
+    }
+    
+    @Override
+    public void onProductClick(Product product) {
+        // מעבר למסך פרטים
+        Intent intent = new Intent(this, ProductDetailsActivity.class);
+        intent.putExtra("product_id", product.getId());
+        startActivity(intent);
+    }
+    
+    @Override
+    public void onAddToCart(Product product) {
+        Toast.makeText(this, 
+            product.getName() + " נוסף לסל", 
+            Toast.LENGTH_SHORT).show();
+    }
+}`,
+    principles: [
+      "ViewHolder Pattern - מניעת קריאות יקרות ל-findViewById",
+      "Adapter Pattern - הפרדה בין הנתונים לתצוגה",
+      "Recycling - שימוש חוזר ב-Views לחיסכון בזיכרון",
+      "LayoutManager - גמישות בסידור הפריטים"
+    ],
+    tips: [
+      "השתמש ב-notifyItemInserted/Removed במקום notifyDataSetChanged לביצועים טובים",
+      "הימנע מעבודה כבדה ב-onBindViewHolder",
+      "השתמש ב-DiffUtil לעדכון יעיל של רשימות גדולות",
+      "הוסף ItemDecoration לרווחים בין פריטים"
+    ]
+  },
+  {
+    id: "singleton",
+    name: "Singleton",
+    nameEn: "Singleton Design Pattern",
+    category: "combined",
+    points: 1,
+    description: "תבנית עיצוב המבטיחה שיהיה רק מופע אחד של מחלקה בכל האפליקציה.",
+    theory: `Singleton הוא Design Pattern שמבטיח שתהיה רק מופע (instance) אחד של מחלקה.
+
+העיקרון המרכזי: שליטה בכמות המופעים של מחלקה - מאפשר גישה גלובלית לאובייקט יחיד.
+
+מתי להשתמש:
+• ניהול חיבור למסד נתונים
+• ניהול הגדרות (Settings/Preferences)
+• מנהל משתמש מחובר (UserManager)
+• Cache מרכזי
+• Logger
+
+יתרונות:
+• גישה גלובלית מכל מקום באפליקציה
+• חיסכון בזיכרון - אובייקט אחד בלבד
+• שליטה מרכזית במשאב משותף
+
+חסרונות ושיקולים:
+• קושי בבדיקות (Testing)
+• תלות גלובלית - יכול להקשות על תחזוקה
+• Thread Safety - צריך לוודא שעובד נכון עם מספר threads
+
+מימוש באנדרואיד:
+• Eager Initialization - יצירה מיידית
+• Lazy Initialization - יצירה רק בשימוש ראשון
+• Thread-Safe Singleton - בטוח לריבוי threads`,
+    codeExample: `// ========================================
+// דוגמה 1: Singleton פשוט
+// ========================================
+public class UserManager {
+    // משתנה סטטי לשמירת המופע היחיד
+    private static UserManager instance;
+    
+    // המשתמש המחובר
+    private User currentUser;
+    
+    // פעולה בונה פרטית - מונעת יצירת מופעים מבחוץ!
+    private UserManager() {
+        currentUser = null;
+    }
+    
+    // פעולה סטטית לקבלת המופע היחיד
+    public static UserManager getInstance() {
+        if (instance == null) {
+            instance = new UserManager();
+        }
+        return instance;
+    }
+    
+    // פעולות לניהול המשתמש
+    public void login(User user) {
+        this.currentUser = user;
+    }
+    
+    public void logout() {
+        this.currentUser = null;
+    }
+    
+    public User getCurrentUser() {
+        return currentUser;
+    }
+    
+    public boolean isLoggedIn() {
+        return currentUser != null;
+    }
+}
+
+// ========================================
+// שימוש מכל מקום באפליקציה
+// ========================================
+// במסך התחברות:
+UserManager.getInstance().login(user);
+
+// במסך הראשי:
+if (UserManager.getInstance().isLoggedIn()) {
+    User user = UserManager.getInstance().getCurrentUser();
+    tvWelcome.setText("שלום " + user.getName());
+}
+
+// במסך הגדרות:
+UserManager.getInstance().logout();
+
+// ========================================
+// דוגמה 2: Singleton Thread-Safe
+// ========================================
+public class DatabaseManager {
+    // volatile מבטיח שכל ה-threads רואים את אותו ערך
+    private static volatile DatabaseManager instance;
+    private SQLiteDatabase database;
+    
+    private DatabaseManager(Context context) {
+        DBHelper helper = new DBHelper(context.getApplicationContext());
+        database = helper.getWritableDatabase();
+    }
+    
+    // Double-Checked Locking - בטוח ויעיל
+    public static DatabaseManager getInstance(Context context) {
+        if (instance == null) {
+            synchronized (DatabaseManager.class) {
+                if (instance == null) {
+                    instance = new DatabaseManager(context);
+                }
+            }
+        }
+        return instance;
+    }
+    
+    public SQLiteDatabase getDatabase() {
+        return database;
+    }
+    
+    public void closeDatabase() {
+        if (database != null && database.isOpen()) {
+            database.close();
+        }
+    }
+}
+
+// ========================================
+// דוגמה 3: Singleton להגדרות
+// ========================================
+public class SettingsManager {
+    private static SettingsManager instance;
+    private SharedPreferences prefs;
+    
+    private static final String PREF_NAME = "app_settings";
+    private static final String KEY_DARK_MODE = "dark_mode";
+    private static final String KEY_LANGUAGE = "language";
+    private static final String KEY_NOTIFICATIONS = "notifications";
+    
+    private SettingsManager(Context context) {
+        prefs = context.getApplicationContext()
+            .getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+    }
+    
+    public static synchronized SettingsManager getInstance(Context context) {
+        if (instance == null) {
+            instance = new SettingsManager(context);
+        }
+        return instance;
+    }
+    
+    // Dark Mode
+    public boolean isDarkMode() {
+        return prefs.getBoolean(KEY_DARK_MODE, false);
+    }
+    
+    public void setDarkMode(boolean enabled) {
+        prefs.edit().putBoolean(KEY_DARK_MODE, enabled).apply();
+    }
+    
+    // Language
+    public String getLanguage() {
+        return prefs.getString(KEY_LANGUAGE, "he");
+    }
+    
+    public void setLanguage(String language) {
+        prefs.edit().putString(KEY_LANGUAGE, language).apply();
+    }
+    
+    // Notifications
+    public boolean areNotificationsEnabled() {
+        return prefs.getBoolean(KEY_NOTIFICATIONS, true);
+    }
+    
+    public void setNotificationsEnabled(boolean enabled) {
+        prefs.edit().putBoolean(KEY_NOTIFICATIONS, enabled).apply();
+    }
+}
+
+// שימוש:
+SettingsManager settings = SettingsManager.getInstance(this);
+if (settings.isDarkMode()) {
+    // החל מצב כהה
+}`,
+    principles: [
+      "Private Constructor - מניעת יצירת מופעים מבחוץ",
+      "Static Instance - משתנה סטטי לשמירת המופע היחיד",
+      "Global Access Point - מתודה סטטית לגישה למופע",
+      "Thread Safety - הגנה מפני בעיות ריבוי threads"
+    ],
+    tips: [
+      "השתמש ב-Singleton רק כשבאמת צריך מופע יחיד",
+      "העדף Dependency Injection על פני Singleton כשאפשר",
+      "זכור להשתמש ב-synchronized או volatile למימוש Thread-Safe",
+      "שמור Context של Application, לא של Activity (למניעת דליפות זיכרון)"
+    ]
   }
 ];
 
