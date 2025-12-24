@@ -3000,6 +3000,318 @@ private void getUserTasks(String userId) {
       "בטל listeners ב-onDestroy",
       "השתמש ב-FieldValue.serverTimestamp() לזמנים"
     ]
+  },
+  {
+    id: "firebase-multi-user",
+    name: "Firebase מרובה משתמשים",
+    nameEn: "Firebase Multi-User Realtime",
+    category: "advanced",
+    points: 1,
+    description: "סנכרון בזמן אמת בין משתמשים שונים - שינוי במכשיר אחד מתעדכן מיד באחרים.",
+    theory: `אחד היתרונות הגדולים של Firebase הוא היכולת לסנכרן נתונים בזמן אמת בין משתמשים שונים.
+
+כיצד זה עובד?
+• כל משתמש מאזין (listener) לנתיב ספציפי במסד הנתונים
+• כאשר משתמש אחד משנה נתון - Firebase מודיע לכל המאזינים
+• העדכון מגיע בזמן אמת לכל המכשירים המחוברים
+
+תרחיש לדוגמה:
+תלמיד א' משנה ערך במסד הנתונים מהסלולרי שלו
+→ Firebase שולח הודעה לכל המאזינים
+→ תלמיד ב' מקבל את העדכון באפליקציה שלו בזמן אמת
+
+שימושים נפוצים:
+• צ'אט בזמן אמת
+• משחק רב משתתפים
+• לוח שיתופי (whiteboard)
+• עדכון סטטוס של משתמשים
+• שיתוף רשימות (קניות, משימות)
+
+עקרונות מרכזיים:
+• Observer Pattern - מאזינים מקבלים עדכונים אוטומטית
+• Push Model - השרת דוחף עדכונים (לא הלקוח שואל)
+• ייעול תעבורה - רק השינויים נשלחים, לא כל הנתונים`,
+    codeExample: `// ========================================
+// דוגמה: לוח הודעות משותף בין תלמידים
+// כל שינוי מתעדכן מיד אצל כל התלמידים
+// ========================================
+
+// ========== מחלקת הודעה ==========
+public class Message {
+    private String id;
+    private String senderId;
+    private String senderName;
+    private String content;
+    private long timestamp;
+    
+    // Constructor ריק נדרש ל-Firebase
+    public Message() {}
+    
+    public Message(String senderId, String senderName, String content) {
+        this.senderId = senderId;
+        this.senderName = senderName;
+        this.content = content;
+    }
+    
+    // Getters and Setters...
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public String getSenderId() { return senderId; }
+    public void setSenderId(String senderId) { this.senderId = senderId; }
+    public String getSenderName() { return senderName; }
+    public void setSenderName(String senderName) { this.senderName = senderName; }
+    public String getContent() { return content; }
+    public void setContent(String content) { this.content = content; }
+    public long getTimestamp() { return timestamp; }
+    public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
+}
+
+// ========== Activity עם סנכרון בזמן אמת ==========
+public class SharedBoardActivity extends AppCompatActivity {
+    
+    private FirebaseDatabase database;
+    private DatabaseReference messagesRef;
+    private ValueEventListener messagesListener;
+    
+    private RecyclerView recyclerView;
+    private MessagesAdapter adapter;
+    private ArrayList<Message> messagesList;
+    private EditText editMessage;
+    
+    // פרטי המשתמש הנוכחי
+    private String currentUserId;
+    private String currentUserName;
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_shared_board);
+        
+        // אתחול Firebase
+        database = FirebaseDatabase.getInstance();
+        messagesRef = database.getReference("shared_board/messages");
+        
+        // קבלת פרטי המשתמש המחובר
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            currentUserId = user.getUid();
+            currentUserName = user.getDisplayName();
+        }
+        
+        // אתחול UI
+        initViews();
+        
+        // התחלת האזנה להודעות בזמן אמת
+        startListeningToMessages();
+    }
+    
+    private void initViews() {
+        recyclerView = findViewById(R.id.recyclerMessages);
+        editMessage = findViewById(R.id.editMessage);
+        Button btnSend = findViewById(R.id.btnSend);
+        
+        messagesList = new ArrayList<>();
+        adapter = new MessagesAdapter(messagesList, currentUserId);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(adapter);
+        
+        btnSend.setOnClickListener(v -> sendMessage());
+    }
+    
+    // ========================================
+    // שליחת הודעה - תלמיד א' שולח
+    // ========================================
+    private void sendMessage() {
+        String content = editMessage.getText().toString().trim();
+        if (content.isEmpty()) return;
+        
+        // יצירת מזהה ייחודי להודעה
+        String messageId = messagesRef.push().getKey();
+        
+        // יצירת אובייקט ההודעה
+        Message message = new Message(currentUserId, currentUserName, content);
+        message.setId(messageId);
+        message.setTimestamp(System.currentTimeMillis());
+        
+        // שמירה ב-Firebase
+        // ברגע שזה נשמר - כל המאזינים יקבלו הודעה!
+        messagesRef.child(messageId).setValue(message)
+            .addOnSuccessListener(aVoid -> {
+                editMessage.setText(""); // ניקוי שדה הקלט
+                Log.d("Firebase", "הודעה נשלחה בהצלחה");
+            })
+            .addOnFailureListener(e -> {
+                Toast.makeText(this, "שגיאה בשליחה", Toast.LENGTH_SHORT).show();
+            });
+    }
+    
+    // ========================================
+    // האזנה בזמן אמת - תלמיד ב' מקבל עדכונים
+    // ========================================
+    private void startListeningToMessages() {
+        // יצירת מאזין לשינויים
+        messagesListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                // נקרא בכל פעם שיש שינוי בנתונים!
+                // זה קורה גם כשתלמיד אחר שולח הודעה
+                
+                messagesList.clear();
+                
+                for (DataSnapshot messageSnapshot : snapshot.getChildren()) {
+                    Message message = messageSnapshot.getValue(Message.class);
+                    if (message != null) {
+                        messagesList.add(message);
+                    }
+                }
+                
+                // עדכון הרשימה ב-UI
+                adapter.notifyDataSetChanged();
+                
+                // גלילה להודעה האחרונה
+                if (!messagesList.isEmpty()) {
+                    recyclerView.scrollToPosition(messagesList.size() - 1);
+                }
+                
+                Log.d("Firebase", "התקבלו " + messagesList.size() + " הודעות");
+            }
+            
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("Firebase", "שגיאה: " + error.getMessage());
+            }
+        };
+        
+        // הפעלת ההאזנה
+        // מסודר לפי זמן יצירה
+        messagesRef.orderByChild("timestamp")
+            .addValueEventListener(messagesListener);
+    }
+    
+    // ========================================
+    // חשוב! ביטול ההאזנה כשיוצאים מהמסך
+    // ========================================
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (messagesListener != null) {
+            messagesRef.removeEventListener(messagesListener);
+        }
+    }
+}
+
+// ========================================
+// דוגמה נוספת: ChildEventListener לעדכונים נקודתיים
+// יעיל יותר כי מקבלים רק את השינוי, לא את כל הרשימה
+// ========================================
+private void startListeningWithChildEvents() {
+    messagesRef.addChildEventListener(new ChildEventListener() {
+        @Override
+        public void onChildAdded(@NonNull DataSnapshot snapshot, String prevKey) {
+            // הודעה חדשה נוספה! (תלמיד אחר שלח)
+            Message message = snapshot.getValue(Message.class);
+            messagesList.add(message);
+            adapter.notifyItemInserted(messagesList.size() - 1);
+            recyclerView.scrollToPosition(messagesList.size() - 1);
+        }
+        
+        @Override
+        public void onChildChanged(@NonNull DataSnapshot snapshot, String prevKey) {
+            // הודעה עודכנה
+            Message updated = snapshot.getValue(Message.class);
+            for (int i = 0; i < messagesList.size(); i++) {
+                if (messagesList.get(i).getId().equals(updated.getId())) {
+                    messagesList.set(i, updated);
+                    adapter.notifyItemChanged(i);
+                    break;
+                }
+            }
+        }
+        
+        @Override
+        public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+            // הודעה נמחקה
+            Message removed = snapshot.getValue(Message.class);
+            for (int i = 0; i < messagesList.size(); i++) {
+                if (messagesList.get(i).getId().equals(removed.getId())) {
+                    messagesList.remove(i);
+                    adapter.notifyItemRemoved(i);
+                    break;
+                }
+            }
+        }
+        
+        @Override
+        public void onChildMoved(@NonNull DataSnapshot snapshot, String prevKey) {
+            // סדר השתנה (בדרך כלל לא רלוונטי)
+        }
+        
+        @Override
+        public void onCancelled(@NonNull DatabaseError error) {
+            Log.e("Firebase", "שגיאה: " + error.getMessage());
+        }
+    });
+}
+
+// ========================================
+// Adapter לתצוגת ההודעות
+// ========================================
+public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHolder> {
+    private ArrayList<Message> messages;
+    private String currentUserId;
+    
+    public MessagesAdapter(ArrayList<Message> messages, String currentUserId) {
+        this.messages = messages;
+        this.currentUserId = currentUserId;
+    }
+    
+    @Override
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+            .inflate(R.layout.item_message, parent, false);
+        return new ViewHolder(view);
+    }
+    
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        Message message = messages.get(position);
+        
+        holder.tvSender.setText(message.getSenderName());
+        holder.tvContent.setText(message.getContent());
+        
+        // עיצוב שונה להודעות שלי vs הודעות של אחרים
+        if (message.getSenderId().equals(currentUserId)) {
+            holder.itemView.setBackgroundColor(Color.parseColor("#E3F2FD"));
+        } else {
+            holder.itemView.setBackgroundColor(Color.WHITE);
+        }
+    }
+    
+    @Override
+    public int getItemCount() { return messages.size(); }
+    
+    class ViewHolder extends RecyclerView.ViewHolder {
+        TextView tvSender, tvContent;
+        
+        ViewHolder(View itemView) {
+            super(itemView);
+            tvSender = itemView.findViewById(R.id.tvSender);
+            tvContent = itemView.findViewById(R.id.tvContent);
+        }
+    }
+}`,
+    principles: [
+      "Observer Pattern - כל המאזינים מקבלים עדכון כשהנתונים משתנים",
+      "Push Architecture - Firebase דוחף עדכונים לקליינטים",
+      "ValueEventListener - מקבל את כל הנתונים בכל שינוי",
+      "ChildEventListener - מקבל רק את השינוי הספציפי (יעיל יותר)"
+    ],
+    tips: [
+      "השתמש ב-ChildEventListener לרשימות גדולות - יעיל יותר",
+      "תמיד בטל listeners ב-onDestroy למניעת דליפות זיכרון",
+      "הוסף אינדקס ל-Firebase Console לשיפור ביצועי השאילתות",
+      "שקול להגביל את כמות ההודעות עם limitToLast()"
+    ]
   }
 ];
 

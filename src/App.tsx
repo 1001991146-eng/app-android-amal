@@ -8,6 +8,7 @@ import Extensions from "./pages/Extensions";
 import Checker from "./pages/Checker";
 import Practice from "./pages/Practice";
 import Book from "./pages/Book";
+import BookChecker from "./pages/BookChecker";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/extensions" element={<Extensions />} />
           <Route path="/checker" element={<Checker />} />
+          <Route path="/book-checker" element={<BookChecker />} />
           <Route path="/practice" element={<Practice />} />
           <Route path="/book" element={<Book />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
