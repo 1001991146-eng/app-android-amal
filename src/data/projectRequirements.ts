@@ -20,7 +20,7 @@ export const projectRequirements: RequirementCategory[] = [
   {
     id: "complexity",
     name: "מורכבות הפרויקט",
-    weight: 50,
+    weight: 35,
     requirements: [
       {
         id: "objects",
@@ -69,7 +69,7 @@ export const projectRequirements: RequirementCategory[] = [
   {
     id: "extensions",
     name: "הרחבות נדרשות",
-    weight: 30,
+    weight: 25,
     requirements: [
       {
         id: "required-ext",
@@ -121,9 +121,21 @@ export const projectRequirements: RequirementCategory[] = [
     ]
   },
   {
+    id: "documentation",
+    name: "תיעוד ספר הפרויקט",
+    weight: 25,
+    requirements: [
+      {
+        id: "doc-note",
+        name: "בדיקת ספר הפרויקט",
+        description: "לבדיקה מפורטת של ספר הפרויקט השתמש בבודק ספר"
+      }
+    ]
+  },
+  {
     id: "presentation",
     name: "הצגה בעל פה",
-    weight: 20,
+    weight: 15,
     requirements: [
       {
         id: "demo",
