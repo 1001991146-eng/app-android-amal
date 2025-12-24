@@ -597,91 +597,256 @@ public class MyContentProvider extends ContentProvider {
   {
     id: "animation",
     name: "יצירת אנימציה",
-    nameEn: "Animation",
+    nameEn: "Custom Animation",
     category: "required",
     points: 1,
-    description: "הוספת אנימציות לרכיבי ממשק המשתמש.",
-    theory: `אנימציות משפרות את חווית המשתמש ומדגישות שינויים.
+    description: "יצירת אנימציה עצמאית באמצעות ציור על Canvas - לא שימוש במחלקות אנימציה מוכנות.",
+    theory: `יצירת אנימציה עצמאית מבוססת על ציור חוזר על Canvas ולא על שימוש במחלקות מוכנות כמו ObjectAnimator.
 
-סוגי אנימציות באנדרואיד:
-• View Animation - אנימציות פשוטות על Views
-• Property Animation - שינוי מאפיינים בפועל
-• Drawable Animation - אנימציית פריימים
+העיקרון המרכזי:
+• לולאת אנימציה (Game Loop) - ציור מחדש בתדירות קבועה
+• שינוי מיקום/מצב בכל פריים
+• שימוש ב-Canvas לציור גרפיקה
+• שימוש ב-SurfaceView או View מותאם אישית
 
-Property Animation (מומלץ):
-• ObjectAnimator - אנימציה על מאפיין ספציפי
-• ValueAnimator - אנימציה על ערך כללי
-• AnimatorSet - שילוב אנימציות`,
-    codeExample: `// ObjectAnimator - אנימציה על מאפיין
-ObjectAnimator fadeIn = ObjectAnimator.ofFloat(view, "alpha", 0f, 1f);
-fadeIn.setDuration(500);
-fadeIn.start();
+שלבי האנימציה:
+1. חישוב המצב הבא (Update)
+2. ציור המצב הנוכחי (Draw)
+3. חזרה לשלב 1
 
-// אנימציית תזוזה
-ObjectAnimator moveX = ObjectAnimator.ofFloat(view, "translationX", 0f, 200f);
-moveX.setDuration(300);
-moveX.start();
+סוגי מימוש:
+• View עם invalidate() - פשוט, מתאים לאנימציות קלות
+• SurfaceView עם Thread - מתאים למשחקים ואנימציות כבדות
+• Handler עם postDelayed - שליטה בתזמון
 
-// אנימציית סיבוב
-ObjectAnimator rotate = ObjectAnimator.ofFloat(view, "rotation", 0f, 360f);
-rotate.setDuration(1000);
-rotate.setRepeatCount(ValueAnimator.INFINITE);
-rotate.start();
-
-// שילוב אנימציות
-AnimatorSet set = new AnimatorSet();
-ObjectAnimator scaleX = ObjectAnimator.ofFloat(view, "scaleX", 1f, 1.5f);
-ObjectAnimator scaleY = ObjectAnimator.ofFloat(view, "scaleY", 1f, 1.5f);
-set.playTogether(scaleX, scaleY);
-set.setDuration(300);
-set.start();
-
-// האזנה לאירועי אנימציה
-animator.addListener(new AnimatorListenerAdapter() {
-    @Override
-    public void onAnimationEnd(Animator animation) {
-        // האנימציה הסתיימה
-        doSomethingAfterAnimation();
+הבדל מ-ObjectAnimator:
+• ObjectAnimator משנה מאפיינים של View קיים
+• אנימציה עצמאית מציירת הכל מאפס על Canvas`,
+    codeExample: `// ========================================
+// יצירת View מותאם אישית לאנימציה
+// ========================================
+public class AnimatedBallView extends View {
+    
+    // מיקום הכדור
+    private float ballX = 100;
+    private float ballY = 100;
+    
+    // מהירות הכדור
+    private float speedX = 5;
+    private float speedY = 7;
+    
+    // רדיוס הכדור
+    private float radius = 50;
+    
+    // צבע לציור
+    private Paint paint;
+    
+    // האם האנימציה רצה
+    private boolean isRunning = true;
+    
+    // Handler לניהול הלולאה
+    private Handler handler = new Handler();
+    
+    // ========== Constructor ==========
+    public AnimatedBallView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init();
     }
-});
-
-// אנימציה מ-XML (res/animator/fade_in.xml)
-/*
-<objectAnimator xmlns:android="http://schemas.android.com/apk/res/android"
-    android:propertyName="alpha"
-    android:valueFrom="0"
-    android:valueTo="1"
-    android:duration="500" />
-*/
-
-// שימוש באנימציה מ-XML
-Animator animator = AnimatorInflater.loadAnimator(this, R.animator.fade_in);
-animator.setTarget(view);
-animator.start();
-
-// ViewPropertyAnimator - דרך פשוטה
-view.animate()
-    .alpha(1f)
-    .translationX(100f)
-    .rotation(45f)
-    .setDuration(500)
-    .setListener(new AnimatorListenerAdapter() {
+    
+    private void init() {
+        // אתחול Paint לציור
+        paint = new Paint();
+        paint.setColor(Color.RED);
+        paint.setAntiAlias(true); // קצוות חלקים
+    }
+    
+    // ========== לולאת האנימציה ==========
+    private Runnable animationLoop = new Runnable() {
         @Override
-        public void onAnimationEnd(Animator animation) {
-            // סיום
+        public void run() {
+            if (isRunning) {
+                // שלב 1: עדכון המצב
+                update();
+                
+                // שלב 2: ציור מחדש
+                invalidate(); // גורם לקריאה ל-onDraw
+                
+                // שלב 3: תזמון הפריים הבא (60 FPS = 16ms)
+                handler.postDelayed(this, 16);
+            }
         }
-    })
-    .start();`,
+    };
+    
+    // ========== עדכון המצב ==========
+    private void update() {
+        // הזזת הכדור לפי המהירות
+        ballX += speedX;
+        ballY += speedY;
+        
+        // בדיקת התנגשות בקירות ושינוי כיוון
+        if (ballX - radius < 0 || ballX + radius > getWidth()) {
+            speedX = -speedX; // היפוך כיוון אופקי
+            ballX = Math.max(radius, Math.min(ballX, getWidth() - radius));
+        }
+        
+        if (ballY - radius < 0 || ballY + radius > getHeight()) {
+            speedY = -speedY; // היפוך כיוון אנכי
+            ballY = Math.max(radius, Math.min(ballY, getHeight() - radius));
+        }
+    }
+    
+    // ========== ציור על ה-Canvas ==========
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        
+        // ציור הרקע
+        canvas.drawColor(Color.WHITE);
+        
+        // ציור הכדור
+        canvas.drawCircle(ballX, ballY, radius, paint);
+        
+        // אפשר להוסיף עוד ציורים
+        // canvas.drawRect(left, top, right, bottom, paint);
+        // canvas.drawLine(startX, startY, endX, endY, paint);
+        // canvas.drawText("טקסט", x, y, paint);
+    }
+    
+    // ========== התחלת האנימציה ==========
+    public void startAnimation() {
+        isRunning = true;
+        handler.post(animationLoop);
+    }
+    
+    // ========== עצירת האנימציה ==========
+    public void stopAnimation() {
+        isRunning = false;
+        handler.removeCallbacks(animationLoop);
+    }
+    
+    // ========== חשוב! ניקוי משאבים ==========
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        stopAnimation(); // עצירת האנימציה כשה-View מוסר
+    }
+}
+
+// ========================================
+// שימוש ב-Activity
+// ========================================
+public class AnimationActivity extends AppCompatActivity {
+    
+    private AnimatedBallView animatedView;
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        
+        // יצירת ה-View
+        animatedView = new AnimatedBallView(this, null);
+        setContentView(animatedView);
+        
+        // התחלת האנימציה
+        animatedView.startAnimation();
+    }
+    
+    @Override
+    protected void onPause() {
+        super.onPause();
+        animatedView.stopAnimation(); // חיסכון בסוללה
+    }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        animatedView.startAnimation();
+    }
+}
+
+// ========================================
+// דוגמה מתקדמת: SurfaceView לביצועים טובים יותר
+// ========================================
+public class GameSurfaceView extends SurfaceView implements Runnable {
+    
+    private Thread gameThread;
+    private boolean isPlaying;
+    private SurfaceHolder surfaceHolder;
+    
+    // משתני האנימציה
+    private float objectX = 0;
+    private float objectY = 0;
+    private Paint paint = new Paint();
+    
+    public GameSurfaceView(Context context) {
+        super(context);
+        surfaceHolder = getHolder();
+        paint.setColor(Color.BLUE);
+    }
+    
+    @Override
+    public void run() {
+        while (isPlaying) {
+            // עדכון
+            update();
+            
+            // ציור
+            draw();
+            
+            // המתנה ל-60 FPS
+            try {
+                Thread.sleep(16);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    private void update() {
+        objectX += 3;
+        if (objectX > getWidth()) {
+            objectX = 0;
+        }
+    }
+    
+    private void draw() {
+        if (surfaceHolder.getSurface().isValid()) {
+            Canvas canvas = surfaceHolder.lockCanvas();
+            
+            // ציור
+            canvas.drawColor(Color.WHITE);
+            canvas.drawCircle(objectX, objectY + 200, 30, paint);
+            
+            surfaceHolder.unlockCanvasAndPost(canvas);
+        }
+    }
+    
+    public void resume() {
+        isPlaying = true;
+        gameThread = new Thread(this);
+        gameThread.start();
+    }
+    
+    public void pause() {
+        isPlaying = false;
+        try {
+            gameThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}`,
     principles: [
-      "Property Animation משנה ערכים בפועל",
-      "ViewPropertyAnimator לאנימציות פשוטות",
-      "AnimatorSet לשילוב אנימציות",
-      "Listener לטיפול באירועים"
+      "Game Loop - לולאת update-draw חוזרת",
+      "Canvas - ציור גרפיקה באופן עצמאי",
+      "invalidate() - מבקש ציור מחדש של ה-View",
+      "Handler/Thread - ניהול תזמון האנימציה"
     ],
     tips: [
-      "השתמש ב-ViewPropertyAnimator לאנימציות פשוטות",
-      "הימנע מאנימציות מורכבות על רשימות ארוכות",
-      "שמור על עקביות בזמני אנימציה באפליקציה"
+      "השתמש ב-SurfaceView לאנימציות כבדות או משחקים",
+      "תמיד עצור את האנימציה ב-onPause לחיסכון בסוללה",
+      "60 FPS = עדכון כל 16 מילישניות",
+      "זכור לנקות משאבים ב-onDetachedFromWindow"
     ]
   },
   {
@@ -2330,7 +2495,7 @@ protected void onDestroy() {
     id: "firebase-auth",
     name: "Firebase Authentication",
     nameEn: "Firebase Authentication",
-    category: "advanced",
+    category: "required",
     points: 1,
     description: "מערכת אימות משתמשים מבוססת ענן עם תמיכה במגוון שיטות התחברות.",
     theory: `Firebase Authentication מספק שירות אימות משתמשים מלא ומאובטח.
@@ -2529,7 +2694,7 @@ private void getUserDetails() {
     id: "firebase-realtime-db",
     name: "Firebase Realtime Database",
     nameEn: "Firebase Realtime Database",
-    category: "advanced",
+    category: "required",
     points: 1,
     description: "מסד נתונים בזמן אמת בענן עם סנכרון אוטומטי בין מכשירים.",
     theory: `Firebase Realtime Database הוא מסד נתונים NoSQL בענן.
@@ -2781,7 +2946,7 @@ public class Task {
     id: "firebase-firestore",
     name: "Firebase Cloud Firestore",
     nameEn: "Firebase Cloud Firestore",
-    category: "advanced",
+    category: "required",
     points: 1,
     description: "מסד נתונים מסמכים (NoSQL) מתקדם עם שאילתות חזקות.",
     theory: `Cloud Firestore הוא מסד נתונים NoSQL מתקדם יותר מ-Realtime Database.
@@ -3005,7 +3170,7 @@ private void getUserTasks(String userId) {
     id: "firebase-multi-user",
     name: "Firebase מרובה משתמשים",
     nameEn: "Firebase Multi-User Realtime",
-    category: "advanced",
+    category: "required",
     points: 1,
     description: "סנכרון בזמן אמת בין משתמשים שונים - שינוי במכשיר אחד מתעדכן מיד באחרים.",
     theory: `אחד היתרונות הגדולים של Firebase הוא היכולת לסנכרן נתונים בזמן אמת בין משתמשים שונים.
