@@ -23,49 +23,31 @@ interface GradeBreakdown {
 
 export default function GradeCalculator() {
   // ציוני קלט
-  const [bookScore, setBookScore] = useState<string>("");
-  const [examScore, setExamScore] = useState<string>("");
-  const [triviaDocScore, setTriviaDocScore] = useState<string>("");
-  const [triviaExamScore, setTriviaExamScore] = useState<string>("");
+  const [matkonetScore, setMatkonetScore] = useState<string>("");
+  const [bagrootExamScore, setBagrootExamScore] = useState<string>("");
   const [showDetails, setShowDetails] = useState(false);
 
   // הרכב הציון לפי המסמכים:
   // ציון בגרות = 50% הגשה + 50% בחינה
-  // ציון הגשה = 80% מתכונת + 20% טריוויה
-  // ציון מתכונת = 30% ספר פרויקט + 70% בחינת מתכונת
-  // ציון טריוויה = 30% מסמך מסכם + 70% בחינה
+  // ציון הגשה = 80% מתכונת + 20% בחינת בגרות
 
   const calculations = useMemo(() => {
-    const book = parseFloat(bookScore) || 0;
-    const exam = parseFloat(examScore) || 0;
-    const triviaDoc = parseFloat(triviaDocScore) || 0;
-    const triviaExam = parseFloat(triviaExamScore) || 0;
+    const matkonet = parseFloat(matkonetScore) || 0;
+    const bagrootExam = parseFloat(bagrootExamScore) || 0;
 
-    // ציון מתכונת = 30% ספר + 70% בחינת מתכונת
-    const matkonetScore = (book * 0.3) + (exam * 0.7);
-
-    // ציון טריוויה = 30% מסמך מסכם + 70% בחינה
-    const triviaScore = (triviaDoc * 0.3) + (triviaExam * 0.7);
-
-    // ציון הגשה = 80% מתכונת + 20% טריוויה
-    const submissionScore = (matkonetScore * 0.8) + (triviaScore * 0.2);
-
-    // ציון בחינה (בעל פה) - נניח שזה ציון הבחינה של המתכונת לצורך החישוב
-    // בפועל, זה ציון הבחינה בעל פה שניתן בנפרד
-    // לצורך הפשטות, נשתמש בציון בחינת המתכונת
-    const oralExamScore = exam;
+    // ציון הגשה = 80% מתכונת + 20% בחינת בגרות
+    const submissionScore = (matkonet * 0.8) + (bagrootExam * 0.2);
 
     // ציון בגרות סופי = 50% הגשה + 50% בחינה (בעל פה)
-    const finalGrade = (submissionScore * 0.5) + (oralExamScore * 0.5);
+    const finalGrade = (submissionScore * 0.5) + (bagrootExam * 0.5);
 
     return {
-      matkonetScore: Math.round(matkonetScore * 10) / 10,
-      triviaScore: Math.round(triviaScore * 10) / 10,
+      matkonetScore: Math.round(matkonet * 10) / 10,
       submissionScore: Math.round(submissionScore * 10) / 10,
-      oralExamScore: Math.round(oralExamScore * 10) / 10,
+      bagrootExamScore: Math.round(bagrootExam * 10) / 10,
       finalGrade: Math.round(finalGrade * 10) / 10
     };
-  }, [bookScore, examScore, triviaDocScore, triviaExamScore]);
+  }, [matkonetScore, bagrootExamScore]);
 
   const getScoreColor = (score: number) => {
     if (score >= 85) return "text-success";
@@ -140,7 +122,7 @@ export default function GradeCalculator() {
                   </div>
                 </div>
 
-                {/* ציון הגשה */}
+              {/* ציון הגשה */}
                 <div>
                   <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
                     <FileText className="h-5 w-5 text-accent" />
@@ -152,44 +134,8 @@ export default function GradeCalculator() {
                       <span className="float-left font-bold">80%</span>
                     </div>
                     <div className="bg-muted/50 rounded-lg p-3">
-                      <span className="text-muted-foreground">טריוויה</span>
+                      <span className="text-muted-foreground">בחינת בגרות</span>
                       <span className="float-left font-bold">20%</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* ציון מתכונת */}
-                <div>
-                  <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
-                    <BookOpen className="h-5 w-5 text-success" />
-                    ציון מתכונת
-                  </h3>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className="bg-muted/50 rounded-lg p-3">
-                      <span className="text-muted-foreground">ספר פרויקט</span>
-                      <span className="float-left font-bold">30%</span>
-                    </div>
-                    <div className="bg-muted/50 rounded-lg p-3">
-                      <span className="text-muted-foreground">בחינת מתכונת</span>
-                      <span className="float-left font-bold">70%</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* ציון טריוויה */}
-                <div>
-                  <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
-                    <PenTool className="h-5 w-5 text-warning" />
-                    ציון טריוויה
-                  </h3>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className="bg-muted/50 rounded-lg p-3">
-                      <span className="text-muted-foreground">מסמך מסכם</span>
-                      <span className="float-left font-bold">30%</span>
-                    </div>
-                    <div className="bg-muted/50 rounded-lg p-3">
-                      <span className="text-muted-foreground">בחינה</span>
-                      <span className="float-left font-bold">70%</span>
                     </div>
                   </div>
                 </div>
@@ -207,76 +153,38 @@ export default function GradeCalculator() {
             <div className="space-y-6">
               <h2 className="text-xl font-bold text-foreground mb-4">הכנס ציונים</h2>
               
-              {/* מתכונת */}
               <div className="bg-card rounded-xl border border-border/50 shadow-card p-6 space-y-4">
-                <h3 className="font-bold text-foreground flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-success" />
-                  ציוני מתכונת
-                </h3>
-                
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div>
-                    <Label htmlFor="bookScore">ציון ספר פרויקט (30%)</Label>
+                    <Label htmlFor="matkonetScore" className="flex items-center gap-2">
+                      <BookOpen className="h-4 w-4 text-success" />
+                      ציון מתכונת (80% מהגשה)
+                    </Label>
                     <Input
-                      id="bookScore"
+                      id="matkonetScore"
                       type="number"
                       min="0"
                       max="100"
                       placeholder="0-100"
-                      value={bookScore}
-                      onChange={(e) => setBookScore(e.target.value)}
+                      value={matkonetScore}
+                      onChange={(e) => setMatkonetScore(e.target.value)}
                       className="mt-1"
                     />
                   </div>
                   
                   <div>
-                    <Label htmlFor="examScore">ציון בחינת מתכונת (70%)</Label>
+                    <Label htmlFor="bagrootExamScore" className="flex items-center gap-2">
+                      <PenTool className="h-4 w-4 text-warning" />
+                      ציון בחינת בגרות (50% + 20% מהגשה)
+                    </Label>
                     <Input
-                      id="examScore"
+                      id="bagrootExamScore"
                       type="number"
                       min="0"
                       max="100"
                       placeholder="0-100"
-                      value={examScore}
-                      onChange={(e) => setExamScore(e.target.value)}
-                      className="mt-1"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* טריוויה */}
-              <div className="bg-card rounded-xl border border-border/50 shadow-card p-6 space-y-4">
-                <h3 className="font-bold text-foreground flex items-center gap-2">
-                  <PenTool className="h-5 w-5 text-warning" />
-                  ציוני טריוויה
-                </h3>
-                
-                <div className="space-y-3">
-                  <div>
-                    <Label htmlFor="triviaDocScore">ציון מסמך מסכם (30%)</Label>
-                    <Input
-                      id="triviaDocScore"
-                      type="number"
-                      min="0"
-                      max="100"
-                      placeholder="0-100"
-                      value={triviaDocScore}
-                      onChange={(e) => setTriviaDocScore(e.target.value)}
-                      className="mt-1"
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="triviaExamScore">ציון בחינת טריוויה (70%)</Label>
-                    <Input
-                      id="triviaExamScore"
-                      type="number"
-                      min="0"
-                      max="100"
-                      placeholder="0-100"
-                      value={triviaExamScore}
-                      onChange={(e) => setTriviaExamScore(e.target.value)}
+                      value={bagrootExamScore}
+                      onChange={(e) => setBagrootExamScore(e.target.value)}
                       className="mt-1"
                     />
                   </div>
@@ -315,23 +223,16 @@ export default function GradeCalculator() {
                   </div>
                   
                   <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
-                    <span className="text-muted-foreground">ציון טריוויה</span>
-                    <span className={cn("font-bold", getScoreColor(calculations.triviaScore))}>
-                      {calculations.triviaScore}
+                    <span className="text-muted-foreground">ציון בחינת בגרות</span>
+                    <span className={cn("font-bold", getScoreColor(calculations.bagrootExamScore))}>
+                      {calculations.bagrootExamScore}
                     </span>
                   </div>
                   
                   <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
-                    <span className="text-muted-foreground">ציון הגשה (80% מתכונת + 20% טריוויה)</span>
+                    <span className="text-muted-foreground">ציון הגשה (80% מתכונת + 20% בחינת בגרות)</span>
                     <span className={cn("font-bold", getScoreColor(calculations.submissionScore))}>
                       {calculations.submissionScore}
-                    </span>
-                  </div>
-                  
-                  <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
-                    <span className="text-muted-foreground">ציון בחינה בעל פה</span>
-                    <span className={cn("font-bold", getScoreColor(calculations.oralExamScore))}>
-                      {calculations.oralExamScore}
                     </span>
                   </div>
                 </div>
@@ -344,7 +245,7 @@ export default function GradeCalculator() {
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-2">
-                    = (הגשה × 50%) + (בחינה × 50%)
+                    = (הגשה × 50%) + (בחינת בגרות × 50%)
                   </p>
                 </div>
               </div>
@@ -354,10 +255,8 @@ export default function GradeCalculator() {
                 variant="outline" 
                 className="w-full"
                 onClick={() => {
-                  setBookScore("");
-                  setExamScore("");
-                  setTriviaDocScore("");
-                  setTriviaExamScore("");
+                  setMatkonetScore("");
+                  setBagrootExamScore("");
                 }}
               >
                 אפס ציונים
