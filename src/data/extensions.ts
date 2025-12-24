@@ -3477,6 +3477,866 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
       "הוסף אינדקס ל-Firebase Console לשיפור ביצועי השאילתות",
       "שקול להגביל את כמות ההודעות עם limitToLast()"
     ]
+  },
+  {
+    id: "gemini-text",
+    name: "Gemini API - פרומפט טקסטואלי",
+    nameEn: "Gemini API - Text Prompt",
+    category: "advanced",
+    points: 10,
+    description: "שימוש ב-Gemini API של Google לקבלת תשובות טקסטואליות מבוססות AI.",
+    theory: `Gemini הוא מודל ה-AI המתקדם של Google, המאפשר יצירת תוכן טקסטואלי חכם.
+
+עקרונות מרכזיים:
+• API מבוסס REST - שליחת בקשות HTTP לשרתי Google
+• Prompt Engineering - ניסוח נכון של השאלה משפיע על איכות התשובה
+• Async Operation - העבודה חייבת להיות אסינכרונית
+• API Key - נדרש מפתח אישי מ-Google AI Studio
+
+תהליך העבודה:
+1. קבלת API Key מ-Google AI Studio
+2. בניית בקשת HTTP עם ה-prompt
+3. שליחה אסינכרונית לשרת
+4. פענוח תשובת JSON
+5. הצגת התוכן למשתמש
+
+שיקולים חשובים:
+• Rate Limits - הגבלות על כמות הבקשות
+• Token Limits - הגבלה על אורך הטקסט
+• עלויות - חלק מהשימושים בתשלום`,
+    codeExample: `// ========================================
+// מחלקת עזר לתקשורת עם Gemini API
+// ========================================
+public class GeminiApiHelper {
+    private static final String API_URL = 
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
+    private String apiKey;
+    
+    public GeminiApiHelper(String apiKey) {
+        this.apiKey = apiKey;
+    }
+    
+    // ממשק callback לקבלת תשובה
+    public interface GeminiCallback {
+        void onSuccess(String response);
+        void onError(String error);
+    }
+    
+    // שליחת prompt טקסטואלי
+    public void sendTextPrompt(String prompt, GeminiCallback callback) {
+        new Thread(() -> {
+            try {
+                // בניית URL עם API Key
+                URL url = new URL(API_URL + "?key=" + apiKey);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json");
+                conn.setDoOutput(true);
+                conn.setConnectTimeout(30000);
+                conn.setReadTimeout(30000);
+                
+                // בניית גוף הבקשה בפורמט JSON
+                JSONObject requestBody = new JSONObject();
+                JSONArray contents = new JSONArray();
+                JSONObject content = new JSONObject();
+                JSONArray parts = new JSONArray();
+                JSONObject part = new JSONObject();
+                
+                part.put("text", prompt);
+                parts.put(part);
+                content.put("parts", parts);
+                contents.put(content);
+                requestBody.put("contents", contents);
+                
+                // שליחת הבקשה
+                OutputStream os = conn.getOutputStream();
+                os.write(requestBody.toString().getBytes("UTF-8"));
+                os.close();
+                
+                // קריאת התשובה
+                int responseCode = conn.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(conn.getInputStream())
+                    );
+                    StringBuilder response = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+                    reader.close();
+                    
+                    // פענוח התשובה
+                    String textResponse = parseGeminiResponse(response.toString());
+                    callback.onSuccess(textResponse);
+                } else {
+                    // קריאת שגיאה
+                    BufferedReader errorReader = new BufferedReader(
+                        new InputStreamReader(conn.getErrorStream())
+                    );
+                    StringBuilder error = new StringBuilder();
+                    String line;
+                    while ((line = errorReader.readLine()) != null) {
+                        error.append(line);
+                    }
+                    errorReader.close();
+                    callback.onError("שגיאה " + responseCode + ": " + error.toString());
+                }
+                
+            } catch (Exception e) {
+                callback.onError("שגיאה בתקשורת: " + e.getMessage());
+            }
+        }).start();
+    }
+    
+    // פענוח תשובת JSON מ-Gemini
+    private String parseGeminiResponse(String jsonResponse) throws JSONException {
+        JSONObject response = new JSONObject(jsonResponse);
+        JSONArray candidates = response.getJSONArray("candidates");
+        if (candidates.length() > 0) {
+            JSONObject candidate = candidates.getJSONObject(0);
+            JSONObject content = candidate.getJSONObject("content");
+            JSONArray parts = content.getJSONArray("parts");
+            if (parts.length() > 0) {
+                return parts.getJSONObject(0).getString("text");
+            }
+        }
+        return "לא התקבלה תשובה";
+    }
+}
+
+// ========================================
+// שימוש ב-Activity
+// ========================================
+public class GeminiTextActivity extends AppCompatActivity {
+    private EditText etPrompt;
+    private TextView tvResponse;
+    private Button btnSend;
+    private ProgressBar progressBar;
+    private GeminiApiHelper geminiHelper;
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_gemini_text);
+        
+        etPrompt = findViewById(R.id.etPrompt);
+        tvResponse = findViewById(R.id.tvResponse);
+        btnSend = findViewById(R.id.btnSend);
+        progressBar = findViewById(R.id.progressBar);
+        
+        // אתחול עם API Key (בפרויקט אמיתי - לא לשמור בקוד!)
+        geminiHelper = new GeminiApiHelper("YOUR_API_KEY");
+        
+        btnSend.setOnClickListener(v -> sendPrompt());
+    }
+    
+    private void sendPrompt() {
+        String prompt = etPrompt.getText().toString().trim();
+        if (prompt.isEmpty()) {
+            Toast.makeText(this, "אנא הכנס שאלה", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        // הצגת טעינה
+        progressBar.setVisibility(View.VISIBLE);
+        btnSend.setEnabled(false);
+        tvResponse.setText("ממתין לתשובה...");
+        
+        geminiHelper.sendTextPrompt(prompt, new GeminiApiHelper.GeminiCallback() {
+            @Override
+            public void onSuccess(String response) {
+                // חזרה ל-Main Thread לעדכון UI
+                runOnUiThread(() -> {
+                    progressBar.setVisibility(View.GONE);
+                    btnSend.setEnabled(true);
+                    tvResponse.setText(response);
+                });
+            }
+            
+            @Override
+            public void onError(String error) {
+                runOnUiThread(() -> {
+                    progressBar.setVisibility(View.GONE);
+                    btnSend.setEnabled(true);
+                    tvResponse.setText("שגיאה: " + error);
+                    Toast.makeText(GeminiTextActivity.this, error, Toast.LENGTH_LONG).show();
+                });
+            }
+        });
+    }
+}`,
+    principles: [
+      "Async/Await Pattern - תקשורת רשת חייבת להיות אסינכרונית",
+      "Callback Pattern - קבלת תשובה דרך ממשק callback",
+      "Error Handling - טיפול מלא בשגיאות רשת ו-API",
+      "UI Thread Safety - עדכון UI רק מה-Main Thread עם runOnUiThread"
+    ],
+    tips: [
+      "אל תשמור API Key בקוד - השתמש ב-BuildConfig או SharedPreferences מוצפן",
+      "הוסף timeout סביר לבקשות (30 שניות)",
+      "הצג למשתמש מחוון טעינה בזמן המתנה לתשובה",
+      "שמור היסטוריית שיחות אם רוצים צ'אט מתמשך"
+    ]
+  },
+  {
+    id: "gemini-image-input",
+    name: "Gemini API - פרומפט עם תמונה",
+    nameEn: "Gemini API - Image Input",
+    category: "advanced",
+    points: 10,
+    description: "שליחת תמונה ל-Gemini API לניתוח, זיהוי ותיאור התמונה.",
+    theory: `Gemini Vision מאפשר לשלוח תמונות יחד עם prompt טקסטואלי לניתוח.
+
+עקרונות מרכזיים:
+• Multimodal Input - שילוב טקסט ותמונה בבקשה אחת
+• Base64 Encoding - התמונה נשלחת מקודדת ב-Base64
+• Image Analysis - המודל יכול לתאר, לנתח ולענות שאלות על תמונות
+
+שימושים נפוצים:
+• תיאור תמונות (Image Captioning)
+• זיהוי אובייקטים
+• OCR - קריאת טקסט מתמונה
+• ניתוח רגשות בתמונה
+• מענה על שאלות לגבי תוכן התמונה
+
+מודל מומלץ: gemini-pro-vision
+
+מגבלות:
+• גודל מקסימלי לתמונה
+• פורמטים נתמכים: JPEG, PNG, WEBP, GIF`,
+    codeExample: `// ========================================
+// Gemini Vision - ניתוח תמונות
+// ========================================
+public class GeminiVisionHelper {
+    private static final String API_URL = 
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent";
+    private String apiKey;
+    
+    public GeminiVisionHelper(String apiKey) {
+        this.apiKey = apiKey;
+    }
+    
+    public interface VisionCallback {
+        void onSuccess(String analysis);
+        void onError(String error);
+    }
+    
+    // שליחת תמונה עם prompt לניתוח
+    public void analyzeImage(Bitmap image, String prompt, VisionCallback callback) {
+        new Thread(() -> {
+            try {
+                // המרת התמונה ל-Base64
+                String base64Image = bitmapToBase64(image);
+                
+                // בניית הבקשה
+                URL url = new URL(API_URL + "?key=" + apiKey);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json");
+                conn.setDoOutput(true);
+                conn.setConnectTimeout(60000); // timeout ארוך יותר לתמונות
+                conn.setReadTimeout(60000);
+                
+                // בניית גוף הבקשה עם תמונה וטקסט
+                JSONObject requestBody = buildVisionRequest(base64Image, prompt);
+                
+                // שליחה
+                OutputStream os = conn.getOutputStream();
+                os.write(requestBody.toString().getBytes("UTF-8"));
+                os.close();
+                
+                // קבלת תשובה
+                int responseCode = conn.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    String response = readResponse(conn.getInputStream());
+                    String analysis = parseGeminiResponse(response);
+                    callback.onSuccess(analysis);
+                } else {
+                    String error = readResponse(conn.getErrorStream());
+                    callback.onError("שגיאה " + responseCode + ": " + error);
+                }
+                
+            } catch (Exception e) {
+                callback.onError("שגיאה: " + e.getMessage());
+            }
+        }).start();
+    }
+    
+    // המרת Bitmap ל-Base64
+    private String bitmapToBase64(Bitmap bitmap) {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        
+        // כיווץ התמונה אם גדולה מדי
+        int maxSize = 1024;
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        
+        if (width > maxSize || height > maxSize) {
+            float scale = Math.min((float) maxSize / width, (float) maxSize / height);
+            int newWidth = Math.round(width * scale);
+            int newHeight = Math.round(height * scale);
+            bitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
+        }
+        
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 85, byteArrayOutputStream);
+        byte[] byteArray = byteArrayOutputStream.toByteArray();
+        return Base64.encodeToString(byteArray, Base64.NO_WRAP);
+    }
+    
+    // בניית בקשה עם תמונה וטקסט
+    private JSONObject buildVisionRequest(String base64Image, String prompt) throws JSONException {
+        JSONObject requestBody = new JSONObject();
+        JSONArray contents = new JSONArray();
+        JSONObject content = new JSONObject();
+        JSONArray parts = new JSONArray();
+        
+        // חלק טקסטואלי
+        JSONObject textPart = new JSONObject();
+        textPart.put("text", prompt);
+        parts.put(textPart);
+        
+        // חלק התמונה
+        JSONObject imagePart = new JSONObject();
+        JSONObject inlineData = new JSONObject();
+        inlineData.put("mime_type", "image/jpeg");
+        inlineData.put("data", base64Image);
+        imagePart.put("inline_data", inlineData);
+        parts.put(imagePart);
+        
+        content.put("parts", parts);
+        contents.put(content);
+        requestBody.put("contents", contents);
+        
+        return requestBody;
+    }
+    
+    private String readResponse(InputStream stream) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        StringBuilder response = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            response.append(line);
+        }
+        reader.close();
+        return response.toString();
+    }
+    
+    private String parseGeminiResponse(String jsonResponse) throws JSONException {
+        JSONObject response = new JSONObject(jsonResponse);
+        JSONArray candidates = response.getJSONArray("candidates");
+        if (candidates.length() > 0) {
+            return candidates.getJSONObject(0)
+                .getJSONObject("content")
+                .getJSONArray("parts")
+                .getJSONObject(0)
+                .getString("text");
+        }
+        return "לא התקבל ניתוח";
+    }
+}
+
+// ========================================
+// Activity לניתוח תמונות
+// ========================================
+public class ImageAnalysisActivity extends AppCompatActivity {
+    private ImageView ivImage;
+    private EditText etPrompt;
+    private TextView tvResult;
+    private Button btnCapture, btnGallery, btnAnalyze;
+    private Bitmap currentImage;
+    private GeminiVisionHelper visionHelper;
+    
+    private ActivityResultLauncher<Intent> galleryLauncher = 
+        registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    try {
+                        Uri imageUri = result.getData().getData();
+                        currentImage = MediaStore.Images.Media.getBitmap(
+                            getContentResolver(), imageUri
+                        );
+                        ivImage.setImageBitmap(currentImage);
+                    } catch (IOException e) {
+                        Toast.makeText(this, "שגיאה בטעינת התמונה", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        );
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_image_analysis);
+        
+        ivImage = findViewById(R.id.ivImage);
+        etPrompt = findViewById(R.id.etPrompt);
+        tvResult = findViewById(R.id.tvResult);
+        btnGallery = findViewById(R.id.btnGallery);
+        btnAnalyze = findViewById(R.id.btnAnalyze);
+        
+        visionHelper = new GeminiVisionHelper("YOUR_API_KEY");
+        
+        btnGallery.setOnClickListener(v -> openGallery());
+        btnAnalyze.setOnClickListener(v -> analyzeImage());
+        
+        // prompt ברירת מחדל
+        etPrompt.setText("תאר את התמונה הזו בעברית");
+    }
+    
+    private void openGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK, 
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        galleryLauncher.launch(intent);
+    }
+    
+    private void analyzeImage() {
+        if (currentImage == null) {
+            Toast.makeText(this, "אנא בחר תמונה תחילה", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        String prompt = etPrompt.getText().toString().trim();
+        if (prompt.isEmpty()) {
+            prompt = "תאר את התמונה";
+        }
+        
+        tvResult.setText("מנתח תמונה...");
+        btnAnalyze.setEnabled(false);
+        
+        visionHelper.analyzeImage(currentImage, prompt, new GeminiVisionHelper.VisionCallback() {
+            @Override
+            public void onSuccess(String analysis) {
+                runOnUiThread(() -> {
+                    tvResult.setText(analysis);
+                    btnAnalyze.setEnabled(true);
+                });
+            }
+            
+            @Override
+            public void onError(String error) {
+                runOnUiThread(() -> {
+                    tvResult.setText("שגיאה: " + error);
+                    btnAnalyze.setEnabled(true);
+                });
+            }
+        });
+    }
+}`,
+    principles: [
+      "Multimodal Processing - עיבוד משולב של טקסט ותמונה",
+      "Base64 Encoding - קידוד בינארי לטקסט להעברה ב-JSON",
+      "Image Preprocessing - כיווץ וייעול התמונה לפני שליחה",
+      "Callback Pattern - טיפול אסינכרוני בתשובה"
+    ],
+    tips: [
+      "כווץ תמונות גדולות לפני שליחה לחיסכון ב-bandwidth",
+      "השתמש ב-prompt ספציפי לקבלת תשובות ממוקדות",
+      "טפל במקרים של תמונות לא ברורות או לא מתאימות",
+      "הוסף אפשרות לצלם תמונה חדשה בנוסף לבחירה מגלריה"
+    ]
+  },
+  {
+    id: "gemini-multimodal",
+    name: "Gemini API - דו-מודאלי (טקסט+תמונה → תמונה)",
+    nameEn: "Gemini API - Multimodal Image Generation",
+    category: "advanced",
+    points: 10,
+    description: "שימוש ב-Gemini API עם קלט של טקסט ותמונה ליצירת תמונה חדשה או עריכה של תמונה קיימת.",
+    theory: `Gemini Multimodal מאפשר עיבוד מתקדם שכולל קלט של טקסט ותמונה ופלט של תמונה חדשה.
+
+עקרונות מרכזיים:
+• Image-to-Image - שינוי/עריכה של תמונה קיימת
+• Text-Guided Generation - הטקסט מכוון את השינויים בתמונה
+• Dual Encoding - קידוד הן של הטקסט והן של התמונה
+
+שימושים נפוצים:
+• עריכת תמונות לפי הוראות טקסטואליות
+• הוספת אלמנטים לתמונה קיימת
+• שינוי סגנון של תמונה
+• יצירת וריאציות של תמונה
+
+מודל: gemini-2.0-flash-exp (תומך ביצירת תמונות)
+
+הבדל מ-Vision:
+• Vision - קלט תמונה, פלט טקסט (ניתוח)
+• Multimodal - קלט תמונה+טקסט, פלט תמונה (יצירה)`,
+    codeExample: `// ========================================
+// Gemini Multimodal - יצירת תמונות
+// ========================================
+public class GeminiImageGenerator {
+    private static final String API_URL = 
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent";
+    private String apiKey;
+    
+    public GeminiImageGenerator(String apiKey) {
+        this.apiKey = apiKey;
+    }
+    
+    public interface ImageGenerationCallback {
+        void onImageGenerated(Bitmap image);
+        void onTextResponse(String text);
+        void onError(String error);
+    }
+    
+    // יצירת/עריכת תמונה עם קלט תמונה וטקסט
+    public void generateImage(Bitmap inputImage, String prompt, ImageGenerationCallback callback) {
+        new Thread(() -> {
+            try {
+                String base64Image = bitmapToBase64(inputImage);
+                
+                URL url = new URL(API_URL + "?key=" + apiKey);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json");
+                conn.setDoOutput(true);
+                conn.setConnectTimeout(120000); // timeout ארוך ליצירת תמונות
+                conn.setReadTimeout(120000);
+                
+                // בניית בקשה עם הגדרות ליצירת תמונה
+                JSONObject requestBody = buildImageGenerationRequest(base64Image, prompt);
+                
+                OutputStream os = conn.getOutputStream();
+                os.write(requestBody.toString().getBytes("UTF-8"));
+                os.close();
+                
+                int responseCode = conn.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    String response = readResponse(conn.getInputStream());
+                    parseImageResponse(response, callback);
+                } else {
+                    String error = readResponse(conn.getErrorStream());
+                    callback.onError("שגיאה " + responseCode + ": " + error);
+                }
+                
+            } catch (Exception e) {
+                callback.onError("שגיאה: " + e.getMessage());
+            }
+        }).start();
+    }
+    
+    // יצירת תמונה מטקסט בלבד
+    public void generateFromText(String prompt, ImageGenerationCallback callback) {
+        new Thread(() -> {
+            try {
+                URL url = new URL(API_URL + "?key=" + apiKey);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json");
+                conn.setDoOutput(true);
+                conn.setConnectTimeout(120000);
+                conn.setReadTimeout(120000);
+                
+                JSONObject requestBody = buildTextToImageRequest(prompt);
+                
+                OutputStream os = conn.getOutputStream();
+                os.write(requestBody.toString().getBytes("UTF-8"));
+                os.close();
+                
+                int responseCode = conn.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    String response = readResponse(conn.getInputStream());
+                    parseImageResponse(response, callback);
+                } else {
+                    String error = readResponse(conn.getErrorStream());
+                    callback.onError("שגיאה " + responseCode + ": " + error);
+                }
+                
+            } catch (Exception e) {
+                callback.onError("שגיאה: " + e.getMessage());
+            }
+        }).start();
+    }
+    
+    // בניית בקשה ליצירת תמונה מתמונה וטקסט
+    private JSONObject buildImageGenerationRequest(String base64Image, String prompt) 
+            throws JSONException {
+        JSONObject requestBody = new JSONObject();
+        JSONArray contents = new JSONArray();
+        JSONObject content = new JSONObject();
+        JSONArray parts = new JSONArray();
+        
+        // הוראה ליצירת תמונה
+        JSONObject textPart = new JSONObject();
+        textPart.put("text", prompt + "\\n\\nPlease generate an image based on this.");
+        parts.put(textPart);
+        
+        // התמונה הקיימת כבסיס
+        JSONObject imagePart = new JSONObject();
+        JSONObject inlineData = new JSONObject();
+        inlineData.put("mime_type", "image/jpeg");
+        inlineData.put("data", base64Image);
+        imagePart.put("inline_data", inlineData);
+        parts.put(imagePart);
+        
+        content.put("parts", parts);
+        contents.put(content);
+        requestBody.put("contents", contents);
+        
+        // הגדרות ליצירת תמונה
+        JSONObject generationConfig = new JSONObject();
+        generationConfig.put("response_modalities", new JSONArray().put("TEXT").put("IMAGE"));
+        requestBody.put("generationConfig", generationConfig);
+        
+        return requestBody;
+    }
+    
+    // בניית בקשה ליצירת תמונה מטקסט בלבד
+    private JSONObject buildTextToImageRequest(String prompt) throws JSONException {
+        JSONObject requestBody = new JSONObject();
+        JSONArray contents = new JSONArray();
+        JSONObject content = new JSONObject();
+        JSONArray parts = new JSONArray();
+        
+        JSONObject textPart = new JSONObject();
+        textPart.put("text", prompt);
+        parts.put(textPart);
+        
+        content.put("parts", parts);
+        contents.put(content);
+        requestBody.put("contents", contents);
+        
+        // הגדרות ליצירת תמונה
+        JSONObject generationConfig = new JSONObject();
+        generationConfig.put("response_modalities", new JSONArray().put("TEXT").put("IMAGE"));
+        requestBody.put("generationConfig", generationConfig);
+        
+        return requestBody;
+    }
+    
+    // פענוח תשובה שיכולה לכלול טקסט ו/או תמונה
+    private void parseImageResponse(String jsonResponse, ImageGenerationCallback callback) 
+            throws JSONException {
+        JSONObject response = new JSONObject(jsonResponse);
+        JSONArray candidates = response.getJSONArray("candidates");
+        
+        if (candidates.length() > 0) {
+            JSONObject candidate = candidates.getJSONObject(0);
+            JSONObject content = candidate.getJSONObject("content");
+            JSONArray parts = content.getJSONArray("parts");
+            
+            for (int i = 0; i < parts.length(); i++) {
+                JSONObject part = parts.getJSONObject(i);
+                
+                // בדיקה אם זה טקסט
+                if (part.has("text")) {
+                    callback.onTextResponse(part.getString("text"));
+                }
+                
+                // בדיקה אם זו תמונה
+                if (part.has("inline_data")) {
+                    JSONObject inlineData = part.getJSONObject("inline_data");
+                    String base64Data = inlineData.getString("data");
+                    Bitmap bitmap = base64ToBitmap(base64Data);
+                    callback.onImageGenerated(bitmap);
+                }
+            }
+        } else {
+            callback.onError("לא התקבלה תשובה מהמודל");
+        }
+    }
+    
+    private String bitmapToBase64(Bitmap bitmap) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        
+        // כיווץ אם צריך
+        int maxSize = 1024;
+        if (bitmap.getWidth() > maxSize || bitmap.getHeight() > maxSize) {
+            float scale = Math.min(
+                (float) maxSize / bitmap.getWidth(), 
+                (float) maxSize / bitmap.getHeight()
+            );
+            bitmap = Bitmap.createScaledBitmap(
+                bitmap, 
+                (int)(bitmap.getWidth() * scale), 
+                (int)(bitmap.getHeight() * scale), 
+                true
+            );
+        }
+        
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 85, stream);
+        return Base64.encodeToString(stream.toByteArray(), Base64.NO_WRAP);
+    }
+    
+    private Bitmap base64ToBitmap(String base64String) {
+        byte[] decodedBytes = Base64.decode(base64String, Base64.DEFAULT);
+        return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+    }
+    
+    private String readResponse(InputStream stream) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        StringBuilder response = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            response.append(line);
+        }
+        reader.close();
+        return response.toString();
+    }
+}
+
+// ========================================
+// Activity ליצירת תמונות
+// ========================================
+public class ImageGenerationActivity extends AppCompatActivity {
+    private ImageView ivInput, ivOutput;
+    private EditText etPrompt;
+    private Button btnSelectImage, btnGenerate, btnGenerateFromText;
+    private ProgressBar progressBar;
+    private Bitmap inputImage;
+    private GeminiImageGenerator generator;
+    
+    private ActivityResultLauncher<Intent> galleryLauncher = 
+        registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    try {
+                        Uri uri = result.getData().getData();
+                        inputImage = MediaStore.Images.Media.getBitmap(
+                            getContentResolver(), uri
+                        );
+                        ivInput.setImageBitmap(inputImage);
+                        ivInput.setVisibility(View.VISIBLE);
+                    } catch (IOException e) {
+                        showError("שגיאה בטעינת התמונה");
+                    }
+                }
+            }
+        );
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_image_generation);
+        
+        ivInput = findViewById(R.id.ivInput);
+        ivOutput = findViewById(R.id.ivOutput);
+        etPrompt = findViewById(R.id.etPrompt);
+        btnSelectImage = findViewById(R.id.btnSelectImage);
+        btnGenerate = findViewById(R.id.btnGenerate);
+        btnGenerateFromText = findViewById(R.id.btnGenerateFromText);
+        progressBar = findViewById(R.id.progressBar);
+        
+        generator = new GeminiImageGenerator("YOUR_API_KEY");
+        
+        btnSelectImage.setOnClickListener(v -> openGallery());
+        btnGenerate.setOnClickListener(v -> generateWithImage());
+        btnGenerateFromText.setOnClickListener(v -> generateFromTextOnly());
+    }
+    
+    private void openGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK,
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        galleryLauncher.launch(intent);
+    }
+    
+    private void generateWithImage() {
+        if (inputImage == null) {
+            showError("אנא בחר תמונה תחילה");
+            return;
+        }
+        
+        String prompt = etPrompt.getText().toString().trim();
+        if (prompt.isEmpty()) {
+            showError("אנא הכנס הוראות לעריכת התמונה");
+            return;
+        }
+        
+        startGeneration();
+        
+        generator.generateImage(inputImage, prompt, new GeminiImageGenerator.ImageGenerationCallback() {
+            @Override
+            public void onImageGenerated(Bitmap image) {
+                runOnUiThread(() -> {
+                    ivOutput.setImageBitmap(image);
+                    ivOutput.setVisibility(View.VISIBLE);
+                    endGeneration();
+                });
+            }
+            
+            @Override
+            public void onTextResponse(String text) {
+                runOnUiThread(() -> {
+                    Toast.makeText(ImageGenerationActivity.this, text, Toast.LENGTH_LONG).show();
+                });
+            }
+            
+            @Override
+            public void onError(String error) {
+                runOnUiThread(() -> {
+                    showError(error);
+                    endGeneration();
+                });
+            }
+        });
+    }
+    
+    private void generateFromTextOnly() {
+        String prompt = etPrompt.getText().toString().trim();
+        if (prompt.isEmpty()) {
+            showError("אנא הכנס תיאור לתמונה שברצונך ליצור");
+            return;
+        }
+        
+        startGeneration();
+        
+        generator.generateFromText(prompt, new GeminiImageGenerator.ImageGenerationCallback() {
+            @Override
+            public void onImageGenerated(Bitmap image) {
+                runOnUiThread(() -> {
+                    ivOutput.setImageBitmap(image);
+                    ivOutput.setVisibility(View.VISIBLE);
+                    endGeneration();
+                });
+            }
+            
+            @Override
+            public void onTextResponse(String text) {
+                runOnUiThread(() -> {
+                    Toast.makeText(ImageGenerationActivity.this, text, Toast.LENGTH_LONG).show();
+                });
+            }
+            
+            @Override
+            public void onError(String error) {
+                runOnUiThread(() -> {
+                    showError(error);
+                    endGeneration();
+                });
+            }
+        });
+    }
+    
+    private void startGeneration() {
+        progressBar.setVisibility(View.VISIBLE);
+        btnGenerate.setEnabled(false);
+        btnGenerateFromText.setEnabled(false);
+    }
+    
+    private void endGeneration() {
+        progressBar.setVisibility(View.GONE);
+        btnGenerate.setEnabled(true);
+        btnGenerateFromText.setEnabled(true);
+    }
+    
+    private void showError(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    }
+}`,
+    principles: [
+      "Multimodal I/O - קלט ופלט משולבים של מדיה שונות",
+      "Response Modalities - הגדרת סוגי הפלט הרצויים",
+      "Base64 Encoding/Decoding - המרה דו-כיוונית בין Bitmap לטקסט",
+      "Flexible Output Handling - טיפול בתשובות שיכולות לכלול טקסט, תמונה או שניהם"
+    ],
+    tips: [
+      "השתמש ב-timeout ארוך (120 שניות+) כי יצירת תמונות לוקחת זמן",
+      "הצג למשתמש מחוון טעינה ברור בזמן היצירה",
+      "הוסף אפשרות לשמור את התמונה שנוצרה לגלריה",
+      "נסה prompts שונים לקבלת תוצאות מגוונות"
+    ]
   }
 ];
 
