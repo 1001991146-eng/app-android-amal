@@ -28,6 +28,13 @@ const features = [
     color: "from-emerald-500 to-emerald-600"
   },
   {
+    icon: FileText,
+    title: "בודק ספר פרויקט",
+    description: "בדוק אם ספר הפרויקט שלך מכיל את כל הפרקים הנדרשים",
+    href: "/book-checker",
+    color: "from-indigo-500 to-indigo-600"
+  },
+  {
     icon: GraduationCap,
     title: "אזור תרגול",
     description: "שאלות תרגול עם משוב מיידי להכנה לבחינה בעל פה",

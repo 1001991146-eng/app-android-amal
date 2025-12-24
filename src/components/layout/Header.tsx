@@ -8,6 +8,7 @@ const navigation = [
   { name: "דף הבית", href: "/", icon: BookOpen },
   { name: "הרחבות", href: "/extensions", icon: GraduationCap },
   { name: "בודק פרויקט", href: "/checker", icon: CheckSquare },
+  { name: "בודק ספר", href: "/book-checker", icon: FileText },
   { name: "תרגול", href: "/practice", icon: FileText },
   { name: "ספר פרויקט", href: "/book", icon: FileText },
 ];
