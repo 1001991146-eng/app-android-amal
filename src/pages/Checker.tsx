@@ -75,9 +75,12 @@ export default function Checker() {
             <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               בודק פרויקט
             </h1>
-            <p className="text-lg text-muted-foreground">
+            <p className="text-lg text-muted-foreground mb-4">
               סמן את כל הפריטים שמימשת בפרויקט שלך כדי לבדוק 
               אם הוא עומד בדרישות ל-5 יחידות לימוד
+            </p>
+            <p className="text-sm text-muted-foreground">
+              💡 לבדיקת ספר הפרויקט השתמש ב<a href="/book-checker" className="text-primary hover:underline">בודק ספר</a>
             </p>
           </div>
         </div>

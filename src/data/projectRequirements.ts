@@ -20,7 +20,7 @@ export const projectRequirements: RequirementCategory[] = [
   {
     id: "complexity",
     name: "מורכבות הפרויקט",
-    weight: 35,
+    weight: 50,
     requirements: [
       {
         id: "objects",
@@ -69,7 +69,7 @@ export const projectRequirements: RequirementCategory[] = [
   {
     id: "extensions",
     name: "הרחבות נדרשות",
-    weight: 25,
+    weight: 30,
     requirements: [
       {
         id: "required-ext",
@@ -121,69 +121,9 @@ export const projectRequirements: RequirementCategory[] = [
     ]
   },
   {
-    id: "documentation",
-    name: "תיעוד ספר הפרויקט",
-    weight: 25,
-    requirements: [
-      {
-        id: "intro",
-        name: "מבוא",
-        description: "הצגת הפרויקט, הרקע והמוטיבציה",
-        subItems: [
-          "שם הפרויקט",
-          "תיאור קצר",
-          "קהל היעד",
-          "סיבות לבחירת הנושא"
-        ]
-      },
-      {
-        id: "architecture",
-        name: "ארכיטקטורה/מבנה",
-        description: "תיאור המבנה הכללי של הפרויקט",
-        subItems: [
-          "תרשים זרימה",
-          "תיעוד מסכים",
-          "קשרים בין מחלקות"
-        ]
-      },
-      {
-        id: "implementation",
-        name: "מימוש הפרויקט",
-        description: "תיעוד טכני של המימוש",
-        subItems: [
-          "פירוט Activities",
-          "פירוט עצמים (UML)",
-          "פירוט מחלקות עזר",
-          "תיעוד מסד הנתונים",
-          "תיעוד שימוש בקבצים"
-        ]
-      },
-      {
-        id: "user-guide",
-        name: "מדריך למשתמש",
-        description: "הסבר לשימוש באפליקציה",
-        subItems: [
-          "דרישות והוראות התקנה",
-          "תיאור אופן הפעולה",
-          "מגבלות ואילוצים"
-        ]
-      },
-      {
-        id: "reflection",
-        name: "רפלקציה אישית",
-        description: "מבט לאחור על תהליך הפיתוח"
-      },
-      {
-        id: "bibliography",
-        name: "ביבליוגרפיה",
-        description: "רשימת מקורות ששימשו בפרויקט"
-      }
-    ]
-  },
-  {
     id: "presentation",
     name: "הצגה בעל פה",
-    weight: 15,
+    weight: 20,
     requirements: [
       {
         id: "demo",
