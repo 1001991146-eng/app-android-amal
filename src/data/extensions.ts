@@ -691,18 +691,6 @@ view.animate()
     category: "required",
     points: 1,
     description: "שמירת נתונים מקומית באמצעות SQLite וקבצים.",
-    theory: `אחסון נתונים הוא קריטי לכל אפליקציה.
-
-אפשרויות אחסון:
-• SharedPreferences - הגדרות פשוטות (key-value)
-• SQLite Database - נתונים מובנים בטבלאות
-• קבצים - נתונים לא מובנים
-• Room - ספריה מודרנית ל-SQLite
-
-SQLite:
-• מסד נתונים יחסי מלא
-• SQL לשאילתות
-• דורש הגדרת סכמה`,
     theory: `אחסון נתונים הוא קריטי לכל אפליקציה - מאפשר שמירת מידע גם אחרי סגירת האפליקציה.
 
 אפשרויות אחסון באנדרואיד:
@@ -2335,6 +2323,682 @@ protected void onDestroy() {
       "שחרר MediaRecorder בסיום",
       "טפל ב-IOException בהכנה",
       "עצור הקלטה ב-onStop"
+    ]
+  },
+  // Firebase Extensions
+  {
+    id: "firebase-auth",
+    name: "Firebase Authentication",
+    nameEn: "Firebase Authentication",
+    category: "advanced",
+    points: 1,
+    description: "מערכת אימות משתמשים מבוססת ענן עם תמיכה במגוון שיטות התחברות.",
+    theory: `Firebase Authentication מספק שירות אימות משתמשים מלא ומאובטח.
+
+יתרונות Firebase Auth:
+• אימות מוכן לשימוש - לא צריך לבנות שרת
+• תמיכה במגוון שיטות: אימייל/סיסמה, Google, Facebook, טלפון
+• ניהול אוטומטי של tokens ו-sessions
+• אבטחה ברמה גבוהה (הצפנה, הגנה מפני התקפות)
+• סנכרון עם שירותי Firebase אחרים
+
+מושגים מרכזיים:
+• FirebaseAuth - הclass הראשי לאימות
+• FirebaseUser - מייצג משתמש מחובר
+• AuthStateListener - מאזין לשינויי מצב התחברות
+• Credentials - אישורי התחברות
+
+שיטות אימות נפוצות:
+• Email/Password - הכי נפוץ ופשוט
+• Google Sign-In - התחברות חברתית
+• Phone Authentication - SMS
+• Anonymous - משתמש אנונימי זמני`,
+    codeExample: `// ========== הגדרת Firebase בפרויקט ==========
+// 1. הוסף ל-build.gradle (project level):
+// classpath 'com.google.gms:google-services:4.3.15'
+
+// 2. הוסף ל-build.gradle (app level):
+// implementation 'com.google.firebase:firebase-auth:22.1.0'
+// apply plugin: 'com.google.gms.google-services'
+
+// 3. הורד google-services.json מ-Firebase Console ושים ב-app folder
+
+// ========== אתחול Firebase ==========
+public class MyApplication extends Application {
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        FirebaseApp.initializeApp(this);
+    }
+}
+
+// ========== הרשמה (Sign Up) ==========
+private void registerUser(String email, String password) {
+    FirebaseAuth auth = FirebaseAuth.getInstance();
+    
+    auth.createUserWithEmailAndPassword(email, password)
+        .addOnCompleteListener(this, task -> {
+            if (task.isSuccessful()) {
+                // הרשמה הצליחה
+                FirebaseUser user = auth.getCurrentUser();
+                Toast.makeText(this, "נרשמת בהצלחה!", Toast.LENGTH_SHORT).show();
+                
+                // שליחת אימייל אימות (אופציונלי)
+                user.sendEmailVerification()
+                    .addOnCompleteListener(emailTask -> {
+                        if (emailTask.isSuccessful()) {
+                            Toast.makeText(this, "אימייל אימות נשלח", 
+                                Toast.LENGTH_SHORT).show();
+                        }
+                    });
+            } else {
+                // טיפול בשגיאות
+                String error = task.getException().getMessage();
+                Toast.makeText(this, "שגיאה: " + error, Toast.LENGTH_LONG).show();
+            }
+        });
+}
+
+// ========== התחברות (Login) ==========
+private void loginUser(String email, String password) {
+    FirebaseAuth auth = FirebaseAuth.getInstance();
+    
+    auth.signInWithEmailAndPassword(email, password)
+        .addOnCompleteListener(this, task -> {
+            if (task.isSuccessful()) {
+                // התחברות הצליחה
+                FirebaseUser user = auth.getCurrentUser();
+                Toast.makeText(this, "שלום " + user.getEmail(), 
+                    Toast.LENGTH_SHORT).show();
+                
+                // מעבר למסך הראשי
+                startActivity(new Intent(this, MainActivity.class));
+                finish();
+            } else {
+                Toast.makeText(this, "שם משתמש או סיסמה שגויים", 
+                    Toast.LENGTH_SHORT).show();
+            }
+        });
+}
+
+// ========== התנתקות (Logout) ==========
+private void logoutUser() {
+    FirebaseAuth.getInstance().signOut();
+    Toast.makeText(this, "התנתקת בהצלחה", Toast.LENGTH_SHORT).show();
+    startActivity(new Intent(this, LoginActivity.class));
+    finish();
+}
+
+// ========== שינוי סיסמה ==========
+private void changePassword(String newPassword) {
+    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+    
+    if (user != null) {
+        user.updatePassword(newPassword)
+            .addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    Toast.makeText(this, "הסיסמה שונתה בהצלחה", 
+                        Toast.LENGTH_SHORT).show();
+                } else {
+                    // ייתכן שצריך להתחבר מחדש לפני שינוי סיסמה
+                    Toast.makeText(this, "שגיאה: " + task.getException().getMessage(), 
+                        Toast.LENGTH_SHORT).show();
+                }
+            });
+    }
+}
+
+// ========== איפוס סיסמה (שכחתי סיסמה) ==========
+private void resetPassword(String email) {
+    FirebaseAuth auth = FirebaseAuth.getInstance();
+    
+    auth.sendPasswordResetEmail(email)
+        .addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(this, 
+                    "אימייל לאיפוס סיסמה נשלח ל-" + email, 
+                    Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, "שגיאה: " + task.getException().getMessage(), 
+                    Toast.LENGTH_SHORT).show();
+            }
+        });
+}
+
+// ========== מאזין לשינויי מצב התחברות ==========
+private FirebaseAuth.AuthStateListener authListener;
+
+@Override
+protected void onStart() {
+    super.onStart();
+    
+    authListener = firebaseAuth -> {
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+        if (user != null) {
+            // המשתמש מחובר
+            Log.d("Auth", "משתמש מחובר: " + user.getEmail());
+        } else {
+            // המשתמש לא מחובר
+            Log.d("Auth", "משתמש לא מחובר");
+        }
+    };
+    
+    FirebaseAuth.getInstance().addAuthStateListener(authListener);
+}
+
+@Override
+protected void onStop() {
+    super.onStop();
+    if (authListener != null) {
+        FirebaseAuth.getInstance().removeAuthStateListener(authListener);
+    }
+}
+
+// ========== בדיקה אם משתמש מחובר ==========
+private boolean isUserLoggedIn() {
+    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+    return user != null;
+}
+
+// ========== קבלת פרטי המשתמש ==========
+private void getUserDetails() {
+    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+    
+    if (user != null) {
+        String uid = user.getUid();           // מזהה ייחודי
+        String email = user.getEmail();       // אימייל
+        String name = user.getDisplayName();  // שם (אם הוגדר)
+        Uri photo = user.getPhotoUrl();       // תמונה (אם הוגדרה)
+        boolean verified = user.isEmailVerified(); // האם האימייל אומת
+    }
+}`,
+    principles: [
+      "FirebaseAuth.getInstance() - נקודת כניסה יחידה לשירות",
+      "Callbacks אסינכרוניים - כל פעולה מחזירה Task",
+      "AuthStateListener - מאזין לשינויים במצב ההתחברות",
+      "טיפול בשגיאות - תמיד לטפל ב-task.getException()"
+    ],
+    tips: [
+      "הוסף google-services.json לפרויקט",
+      "הפעל את Email/Password Authentication ב-Firebase Console",
+      "שקול לשלוח אימייל אימות למשתמשים חדשים",
+      "השתמש ב-AuthStateListener במקום לבדוק ידנית"
+    ]
+  },
+  {
+    id: "firebase-realtime-db",
+    name: "Firebase Realtime Database",
+    nameEn: "Firebase Realtime Database",
+    category: "advanced",
+    points: 1,
+    description: "מסד נתונים בזמן אמת בענן עם סנכרון אוטומטי בין מכשירים.",
+    theory: `Firebase Realtime Database הוא מסד נתונים NoSQL בענן.
+
+מאפיינים עיקריים:
+• סנכרון בזמן אמת - שינויים מתעדכנים מיד בכל המכשירים
+• עבודה אופליין - נתונים נשמרים מקומית ומסתנכרנים כשחוזר חיבור
+• מבנה JSON - נתונים מאוחסנים כעץ JSON
+• ללא שרת - גישה ישירה מהאפליקציה
+
+מושגים מרכזיים:
+• DatabaseReference - הפניה לנתיב במסד
+• ValueEventListener - מאזין לשינויים
+• ChildEventListener - מאזין לשינויים ברשימות
+• DataSnapshot - תמונת מצב של הנתונים
+
+מבנה הנתונים:
+• מבוסס על נתיבים (paths) כמו מערכת קבצים
+• לדוגמה: /users/user123/name
+• נתונים מאורגנים כעץ JSON`,
+    codeExample: `// ========== הגדרה ==========
+// הוסף ל-build.gradle (app level):
+// implementation 'com.google.firebase:firebase-database:20.2.2'
+
+// ========== אתחול והפניות ==========
+FirebaseDatabase database = FirebaseDatabase.getInstance();
+DatabaseReference rootRef = database.getReference();
+
+// הפניה לנתיב ספציפי
+DatabaseReference usersRef = database.getReference("users");
+DatabaseReference specificUserRef = database.getReference("users/user123");
+
+// ========== יצירת מסמך/רשומה חדשה ==========
+// שיטה 1: עם מזהה ידני
+private void createUserManualId(String oderId, String name, String email) {
+    DatabaseReference userRef = database.getReference("users").child(userId);
+    
+    // יצירת אובייקט User
+    User user = new User(name, email);
+    
+    userRef.setValue(user)
+        .addOnSuccessListener(aVoid -> {
+            Toast.makeText(this, "משתמש נוצר בהצלחה", Toast.LENGTH_SHORT).show();
+        })
+        .addOnFailureListener(e -> {
+            Toast.makeText(this, "שגיאה: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        });
+}
+
+// שיטה 2: עם מזהה אוטומטי (push)
+private void createUserAutoId(String name, String email) {
+    DatabaseReference usersRef = database.getReference("users");
+    
+    // push() יוצר מזהה ייחודי
+    String newUserId = usersRef.push().getKey();
+    
+    User user = new User(name, email);
+    user.setId(newUserId);
+    
+    usersRef.child(newUserId).setValue(user)
+        .addOnSuccessListener(aVoid -> {
+            Log.d("Firebase", "נוצר משתמש עם ID: " + newUserId);
+        });
+}
+
+// ========== הוספת מסמך (כמו הוספה לרשימה) ==========
+private void addTask(String title, boolean completed) {
+    DatabaseReference tasksRef = database.getReference("tasks");
+    
+    String taskId = tasksRef.push().getKey();
+    
+    Map<String, Object> task = new HashMap<>();
+    task.put("id", taskId);
+    task.put("title", title);
+    task.put("completed", completed);
+    task.put("createdAt", ServerValue.TIMESTAMP); // זמן שרת
+    
+    tasksRef.child(taskId).setValue(task);
+}
+
+// ========== עדכון מסמך ==========
+// עדכון שדה ספציפי
+private void updateTaskTitle(String taskId, String newTitle) {
+    DatabaseReference taskRef = database.getReference("tasks").child(taskId);
+    
+    taskRef.child("title").setValue(newTitle)
+        .addOnSuccessListener(aVoid -> {
+            Toast.makeText(this, "עודכן בהצלחה", Toast.LENGTH_SHORT).show();
+        });
+}
+
+// עדכון מספר שדות בבת אחת
+private void updateMultipleFields(String taskId, String title, boolean completed) {
+    DatabaseReference taskRef = database.getReference("tasks").child(taskId);
+    
+    Map<String, Object> updates = new HashMap<>();
+    updates.put("title", title);
+    updates.put("completed", completed);
+    updates.put("updatedAt", ServerValue.TIMESTAMP);
+    
+    taskRef.updateChildren(updates);
+}
+
+// ========== מחיקת מסמך ==========
+private void deleteTask(String taskId) {
+    DatabaseReference taskRef = database.getReference("tasks").child(taskId);
+    
+    taskRef.removeValue()
+        .addOnSuccessListener(aVoid -> {
+            Toast.makeText(this, "נמחק בהצלחה", Toast.LENGTH_SHORT).show();
+        })
+        .addOnFailureListener(e -> {
+            Toast.makeText(this, "שגיאה במחיקה", Toast.LENGTH_SHORT).show();
+        });
+}
+
+// ========== שליפת נתונים - פעם אחת ==========
+private void getTaskOnce(String taskId) {
+    DatabaseReference taskRef = database.getReference("tasks").child(taskId);
+    
+    taskRef.get().addOnCompleteListener(task -> {
+        if (task.isSuccessful()) {
+            DataSnapshot snapshot = task.getResult();
+            if (snapshot.exists()) {
+                String title = snapshot.child("title").getValue(String.class);
+                Boolean completed = snapshot.child("completed").getValue(Boolean.class);
+                
+                Log.d("Firebase", "משימה: " + title);
+            } else {
+                Log.d("Firebase", "משימה לא נמצאה");
+            }
+        }
+    });
+}
+
+// ========== שליפת נתונים - בזמן אמת ==========
+private ValueEventListener tasksListener;
+
+private void listenToTasks() {
+    DatabaseReference tasksRef = database.getReference("tasks");
+    
+    tasksListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot snapshot) {
+            ArrayList<Task> tasksList = new ArrayList<>();
+            
+            for (DataSnapshot taskSnapshot : snapshot.getChildren()) {
+                Task task = taskSnapshot.getValue(Task.class);
+                tasksList.add(task);
+            }
+            
+            // עדכון ה-UI
+            updateTasksUI(tasksList);
+        }
+        
+        @Override
+        public void onCancelled(DatabaseError error) {
+            Log.e("Firebase", "שגיאה: " + error.getMessage());
+        }
+    };
+    
+    tasksRef.addValueEventListener(tasksListener);
+}
+
+// ביטול האזנה
+@Override
+protected void onDestroy() {
+    super.onDestroy();
+    if (tasksListener != null) {
+        database.getReference("tasks").removeEventListener(tasksListener);
+    }
+}
+
+// ========== שליפה עם מסנן ==========
+// לפי ערך שדה
+private void getCompletedTasks() {
+    DatabaseReference tasksRef = database.getReference("tasks");
+    
+    tasksRef.orderByChild("completed").equalTo(true)
+        .addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                for (DataSnapshot taskSnapshot : snapshot.getChildren()) {
+                    Task task = taskSnapshot.getValue(Task.class);
+                    Log.d("Firebase", "משימה שהושלמה: " + task.getTitle());
+                }
+            }
+            
+            @Override
+            public void onCancelled(DatabaseError error) {}
+        });
+}
+
+// הגבלת תוצאות
+private void getFirstFiveTasks() {
+    database.getReference("tasks")
+        .orderByChild("createdAt")
+        .limitToFirst(5)
+        .addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                // 5 המשימות הראשונות
+            }
+            
+            @Override
+            public void onCancelled(DatabaseError error) {}
+        });
+}
+
+// ========== מחלקת מודל ==========
+public class Task {
+    private String id;
+    private String title;
+    private boolean completed;
+    private long createdAt;
+    
+    // Constructor ריק נדרש ל-Firebase
+    public Task() {}
+    
+    public Task(String title, boolean completed) {
+        this.title = title;
+        this.completed = completed;
+    }
+    
+    // Getters and Setters...
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+    public boolean isCompleted() { return completed; }
+    public void setCompleted(boolean completed) { this.completed = completed; }
+    public long getCreatedAt() { return createdAt; }
+    public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
+}`,
+    principles: [
+      "DatabaseReference - כל פעולה מתבצעת על הפניה לנתיב",
+      "push() - יצירת מזהה ייחודי אוטומטי",
+      "ValueEventListener - קבלת עדכונים בזמן אמת",
+      "Constructor ריק - נדרש לכל מחלקת מודל"
+    ],
+    tips: [
+      "השתמש ב-push() למזהים אוטומטיים",
+      "בטל listeners ב-onDestroy למניעת memory leaks",
+      "הפעל Rules ב-Firebase Console לאבטחה",
+      "השתמש ב-ServerValue.TIMESTAMP לזמנים"
+    ]
+  },
+  {
+    id: "firebase-firestore",
+    name: "Firebase Cloud Firestore",
+    nameEn: "Firebase Cloud Firestore",
+    category: "advanced",
+    points: 1,
+    description: "מסד נתונים מסמכים (NoSQL) מתקדם עם שאילתות חזקות.",
+    theory: `Cloud Firestore הוא מסד נתונים NoSQL מתקדם יותר מ-Realtime Database.
+
+הבדלים מ-Realtime Database:
+• מבנה: אוספים (Collections) ומסמכים (Documents) במקום עץ JSON
+• שאילתות: תמיכה בשאילתות מורכבות יותר
+• סקלאביליות: מתאים ליותר נתונים ומשתמשים
+• מחיר: תשלום לפי פעולות (קריאות, כתיבות)
+
+מבנה הנתונים:
+• Collection (אוסף) - קבוצה של מסמכים (כמו טבלה)
+• Document (מסמך) - רשומה בודדת עם שדות (כמו שורה)
+• Subcollection - אוסף בתוך מסמך
+
+מתי להשתמש בכל אחד:
+• Realtime DB: סנכרון פשוט, נתונים קטנים, מחיר לפי bandwidth
+• Firestore: שאילתות מורכבות, נתונים גדולים, מבנה מורכב`,
+    codeExample: `// ========== הגדרה ==========
+// implementation 'com.google.firebase:firebase-firestore:24.7.0'
+
+// ========== אתחול ==========
+FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+// ========== יצירת מסמך חדש ==========
+// עם מזהה ידני
+private void createUser(String userId, String name, String email) {
+    Map<String, Object> user = new HashMap<>();
+    user.put("name", name);
+    user.put("email", email);
+    user.put("createdAt", FieldValue.serverTimestamp());
+    
+    db.collection("users").document(userId)
+        .set(user)
+        .addOnSuccessListener(aVoid -> {
+            Log.d("Firestore", "משתמש נוצר בהצלחה");
+        })
+        .addOnFailureListener(e -> {
+            Log.e("Firestore", "שגיאה: " + e.getMessage());
+        });
+}
+
+// עם מזהה אוטומטי
+private void createTask(String title) {
+    Map<String, Object> task = new HashMap<>();
+    task.put("title", title);
+    task.put("completed", false);
+    task.put("createdAt", FieldValue.serverTimestamp());
+    
+    db.collection("tasks")
+        .add(task)
+        .addOnSuccessListener(documentReference -> {
+            String docId = documentReference.getId();
+            Log.d("Firestore", "נוצר מסמך עם ID: " + docId);
+        });
+}
+
+// ========== שליפת מסמך בודד ==========
+private void getTask(String taskId) {
+    db.collection("tasks").document(taskId)
+        .get()
+        .addOnSuccessListener(document -> {
+            if (document.exists()) {
+                String title = document.getString("title");
+                Boolean completed = document.getBoolean("completed");
+                
+                // או המרה לאובייקט
+                Task task = document.toObject(Task.class);
+            } else {
+                Log.d("Firestore", "מסמך לא נמצא");
+            }
+        });
+}
+
+// ========== שליפת כל המסמכים באוסף ==========
+private void getAllTasks() {
+    db.collection("tasks")
+        .get()
+        .addOnSuccessListener(querySnapshot -> {
+            ArrayList<Task> tasks = new ArrayList<>();
+            
+            for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                Task task = document.toObject(Task.class);
+                task.setId(document.getId());
+                tasks.add(task);
+            }
+            
+            updateUI(tasks);
+        });
+}
+
+// ========== שליפה בזמן אמת ==========
+private ListenerRegistration tasksListener;
+
+private void listenToTasks() {
+    tasksListener = db.collection("tasks")
+        .addSnapshotListener((snapshots, error) -> {
+            if (error != null) {
+                Log.e("Firestore", "שגיאה: " + error.getMessage());
+                return;
+            }
+            
+            ArrayList<Task> tasks = new ArrayList<>();
+            for (DocumentSnapshot doc : snapshots.getDocuments()) {
+                Task task = doc.toObject(Task.class);
+                task.setId(doc.getId());
+                tasks.add(task);
+            }
+            
+            updateUI(tasks);
+        });
+}
+
+// ביטול האזנה
+@Override
+protected void onDestroy() {
+    super.onDestroy();
+    if (tasksListener != null) {
+        tasksListener.remove();
+    }
+}
+
+// ========== שאילתות מתקדמות ==========
+// סינון
+private void getCompletedTasks() {
+    db.collection("tasks")
+        .whereEqualTo("completed", true)
+        .get()
+        .addOnSuccessListener(querySnapshot -> {
+            // משימות שהושלמו
+        });
+}
+
+// מיון
+private void getTasksSorted() {
+    db.collection("tasks")
+        .orderBy("createdAt", Query.Direction.DESCENDING)
+        .limit(10)
+        .get()
+        .addOnSuccessListener(querySnapshot -> {
+            // 10 המשימות האחרונות
+        });
+}
+
+// שאילתה משולבת
+private void getRecentUncompletedTasks() {
+    db.collection("tasks")
+        .whereEqualTo("completed", false)
+        .orderBy("createdAt", Query.Direction.DESCENDING)
+        .limit(5)
+        .get()
+        .addOnSuccessListener(querySnapshot -> {
+            // 5 המשימות הלא-גמורות האחרונות
+        });
+}
+
+// ========== עדכון מסמך ==========
+private void updateTask(String taskId, String newTitle) {
+    db.collection("tasks").document(taskId)
+        .update("title", newTitle)
+        .addOnSuccessListener(aVoid -> {
+            Log.d("Firestore", "עודכן בהצלחה");
+        });
+}
+
+// עדכון מספר שדות
+private void updateMultipleFields(String taskId) {
+    Map<String, Object> updates = new HashMap<>();
+    updates.put("title", "כותרת חדשה");
+    updates.put("completed", true);
+    updates.put("updatedAt", FieldValue.serverTimestamp());
+    
+    db.collection("tasks").document(taskId)
+        .update(updates);
+}
+
+// ========== מחיקת מסמך ==========
+private void deleteTask(String taskId) {
+    db.collection("tasks").document(taskId)
+        .delete()
+        .addOnSuccessListener(aVoid -> {
+            Log.d("Firestore", "נמחק בהצלחה");
+        });
+}
+
+// ========== Subcollections ==========
+// הוספת משימה למשתמש ספציפי
+private void addUserTask(String oderId, String taskTitle) {
+    Map<String, Object> task = new HashMap<>();
+    task.put("title", taskTitle);
+    task.put("completed", false);
+    
+    db.collection("users").document(userId)
+        .collection("tasks")  // subcollection
+        .add(task);
+}
+
+// שליפת משימות של משתמש ספציפי
+private void getUserTasks(String userId) {
+    db.collection("users").document(userId)
+        .collection("tasks")
+        .get()
+        .addOnSuccessListener(querySnapshot -> {
+            // משימות של המשתמש הספציפי
+        });
+}`,
+    principles: [
+      "Collection/Document - מבנה היררכי ברור",
+      "DocumentReference - הפניה למסמך ספציפי",
+      "CollectionReference - הפניה לאוסף",
+      "Query - שאילתות מורכבות עם whereEqualTo, orderBy, limit"
+    ],
+    tips: [
+      "השתמש ב-toObject() להמרה אוטומטית",
+      "צור אינדקסים לשאילתות מורכבות ב-Console",
+      "בטל listeners ב-onDestroy",
+      "השתמש ב-FieldValue.serverTimestamp() לזמנים"
     ]
   }
 ];
