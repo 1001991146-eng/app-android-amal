@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { projectRequirements, getTotalPoints } from "@/data/projectRequirements";
+import { projectRequirements, checkProjectValidity, getTotalProgress } from "@/data/projectRequirements";
 import { 
   CheckCircle2, 
   Circle, 
@@ -9,7 +9,9 @@ import {
   Trophy,
   ChevronDown,
   ChevronUp,
-  RotateCcw
+  RotateCcw,
+  XCircle,
+  Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -43,7 +45,8 @@ export default function Checker() {
     setCheckedItems(new Set());
   };
 
-  const totalScore = useMemo(() => getTotalPoints(checkedItems), [checkedItems]);
+  const totalProgress = useMemo(() => getTotalProgress(checkedItems), [checkedItems]);
+  const validation = useMemo(() => checkProjectValidity(checkedItems), [checkedItems]);
 
   const getCategoryProgress = (category: typeof projectRequirements[0]) => {
     const allItems = category.requirements.flatMap(req =>
@@ -59,13 +62,6 @@ export default function Checker() {
     return "text-destructive";
   };
 
-  const getScoreMessage = (score: number) => {
-    if (score >= 90) return "מצוין! הפרויקט שלך עומד ברוב הדרישות";
-    if (score >= 70) return "טוב מאוד! יש עוד כמה דברים להשלים";
-    if (score >= 50) return "בדרך הנכונה! עדיין יש עבודה לעשות";
-    return "בהתחלה! יש עוד הרבה דרישות להשלים";
-  };
-
   return (
     <Layout>
       {/* Header */}
@@ -76,8 +72,7 @@ export default function Checker() {
               בודק פרויקט
             </h1>
             <p className="text-lg text-muted-foreground mb-4">
-              סמן את כל הפריטים שמימשת בפרויקט שלך כדי לבדוק 
-              אם הוא עומד בדרישות ל-5 יחידות לימוד
+              בדוק האם הפרויקט שלך עומד בדרישות 5 יחידות לימוד
             </p>
             <p className="text-sm text-muted-foreground">
               💡 לבדיקת ספר הפרויקט השתמש ב<a href="/book-checker" className="text-primary hover:underline">בודק ספר</a>
@@ -86,25 +81,71 @@ export default function Checker() {
         </div>
       </section>
 
-      {/* Score Card */}
+      {/* Status Cards */}
       <section className="py-8">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-card rounded-2xl border border-border/50 shadow-elevated p-8 text-center">
+          <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-6">
+            {/* Progress Card */}
+            <div className="bg-card rounded-2xl border border-border/50 shadow-elevated p-6 text-center">
               <div className="flex items-center justify-center mb-4">
-                <Trophy className={cn("h-12 w-12", getScoreColor(totalScore))} />
+                <Trophy className={cn("h-10 w-10", getScoreColor(totalProgress))} />
               </div>
-              <div className={cn("text-6xl font-bold mb-2", getScoreColor(totalScore))}>
-                {totalScore}%
+              <div className={cn("text-4xl font-bold mb-2", getScoreColor(totalProgress))}>
+                {totalProgress}%
               </div>
-              <p className="text-lg text-muted-foreground mb-4">
-                {getScoreMessage(totalScore)}
-              </p>
-              <Button variant="secondary" onClick={resetAll} className="gap-2">
-                <RotateCcw className="h-4 w-4" />
-                אפס הכל
-              </Button>
+              <p className="text-muted-foreground">התקדמות כללית</p>
             </div>
+
+            {/* Validity Card */}
+            <div className={cn(
+              "rounded-2xl border shadow-elevated p-6 text-center",
+              validation.isValid 
+                ? "bg-success/10 border-success/30" 
+                : "bg-destructive/10 border-destructive/30"
+            )}>
+              <div className="flex items-center justify-center mb-4">
+                {validation.isValid ? (
+                  <CheckCircle2 className="h-10 w-10 text-success" />
+                ) : (
+                  <XCircle className="h-10 w-10 text-destructive" />
+                )}
+              </div>
+              <div className={cn(
+                "text-xl font-bold mb-2",
+                validation.isValid ? "text-success" : "text-destructive"
+              )}>
+                {validation.isValid ? "עומד בדרישות 5 יחל\"מ" : "לא עומד בדרישות"}
+              </div>
+              <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                <Sparkles className="h-4 w-4" />
+                <span>{validation.extensionPoints} נקודות הרחבות (נדרש: 5)</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Missing Requirements */}
+          {!validation.isValid && validation.missingRequirements.length > 0 && (
+            <div className="max-w-4xl mx-auto mt-6">
+              <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-4">
+                <h3 className="font-bold text-destructive mb-2">דרישות חסרות:</h3>
+                <ul className="space-y-1">
+                  {validation.missingRequirements.map((req, i) => (
+                    <li key={i} className="text-sm text-destructive flex items-center gap-2">
+                      <AlertTriangle className="h-4 w-4" />
+                      {req}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+
+          {/* Reset Button */}
+          <div className="max-w-4xl mx-auto mt-6 text-center">
+            <Button variant="secondary" onClick={resetAll} className="gap-2">
+              <RotateCcw className="h-4 w-4" />
+              אפס הכל
+            </Button>
           </div>
         </div>
       </section>
@@ -116,11 +157,15 @@ export default function Checker() {
             {projectRequirements.map((category) => {
               const progress = getCategoryProgress(category);
               const isExpanded = expandedCategories.has(category.id);
+              const isExtensionCategory = category.id.startsWith("extensions");
 
               return (
                 <div 
                   key={category.id}
-                  className="bg-card rounded-xl border border-border/50 shadow-card overflow-hidden"
+                  className={cn(
+                    "bg-card rounded-xl border shadow-card overflow-hidden",
+                    isExtensionCategory ? "border-primary/30" : "border-border/50"
+                  )}
                 >
                   {/* Category Header */}
                   <button
@@ -129,9 +174,15 @@ export default function Checker() {
                   >
                     <div className="flex items-center gap-4">
                       <div className="text-right">
-                        <h3 className="text-lg font-bold text-foreground">{category.name}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          משקל: {category.weight}% | הושלם: {progress.checked}/{progress.total}
+                        <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+                          {isExtensionCategory && <Sparkles className="h-4 w-4 text-primary" />}
+                          {category.name}
+                        </h3>
+                        {category.description && (
+                          <p className="text-sm text-muted-foreground">{category.description}</p>
+                        )}
+                        <p className="text-xs text-muted-foreground mt-1">
+                          הושלם: {progress.checked}/{progress.total}
                         </p>
                       </div>
                     </div>
@@ -227,6 +278,23 @@ export default function Checker() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* Info Box */}
+      <section className="pb-16">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-muted/50 rounded-xl p-6">
+              <h3 className="font-bold text-foreground mb-4">איך מחשבים נקודות הרחבות?</h3>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>• <strong>סעיף 6 (הרחבות בסיסיות):</strong> כל הרחבה = נקודה אחת</li>
+                <li>• <strong>סעיף 9 (נושאים מתקדמים):</strong> כל נושא = נקודה אחת</li>
+                <li>• <strong>סעיף 10 (נושאים משולבים):</strong> כל 2 נושאים = נקודה אחת</li>
+                <li className="pt-2 text-foreground">• <strong>נדרש:</strong> סה"כ 5 נקודות הרחבות לעמידה בדרישות 5 יחל"מ</li>
+              </ul>
+            </div>
           </div>
         </div>
       </section>
