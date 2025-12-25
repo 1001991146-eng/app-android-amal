@@ -48,7 +48,7 @@ const features = [
   },
   {
     icon: GraduationCap,
-    title: "אזור תרגול",
+    title: "תרגול לבחינה",
     description: "שאלות תרגול עם משוב מיידי להכנה לבחינה בעל פה",
     href: "/practice",
     color: "from-amber-500 to-amber-600"
