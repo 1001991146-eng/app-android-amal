@@ -27,7 +27,7 @@ const features = [
   },
   {
     icon: FileText,
-    title: "ספר פרויקט",
+    title: "כותב ספר",
     description: "מדריך מפורט לכתיבת ספר הפרויקט לפי התבנית הנדרשת",
     href: "/book",
     color: "from-purple-500 to-purple-600"
