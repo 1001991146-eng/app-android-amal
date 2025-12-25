@@ -13,7 +13,8 @@ import {
   ExternalLink,
   Target,
   Layers,
-  Clock
+  Clock,
+  Calculator
 } from "lucide-react";
 
 const features = [
@@ -51,6 +52,13 @@ const features = [
     description: "מדריך מפורט לכתיבת ספר הפרויקט לפי התבנית הנדרשת",
     href: "/book",
     color: "from-purple-500 to-purple-600"
+  },
+  {
+    icon: Calculator,
+    title: "מחשבון בגרות",
+    description: "חשב את ציון הבגרות הצפוי שלך לפי הרכב הציון הרשמי",
+    href: "/grade-calculator",
+    color: "from-rose-500 to-rose-600"
   }
 ];
 
@@ -178,7 +186,7 @@ export default function Index() {
               כלים להצלחה
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              חמישה כלים מרכזיים שילוו אותך לאורך כל הדרך לפרויקט מוצלח
+              שישה כלים מרכזיים שילוו אותך לאורך כל הדרך לפרויקט מוצלח
             </p>
           </div>
           
