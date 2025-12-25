@@ -9,7 +9,11 @@ import {
   Code2, 
   Rocket,
   ArrowLeft,
-  Sparkles
+  Sparkles,
+  ExternalLink,
+  Target,
+  Layers,
+  Clock
 } from "lucide-react";
 
 const features = [
@@ -47,6 +51,24 @@ const features = [
     description: "מדריך מפורט לכתיבת ספר הפרויקט לפי התבנית הנדרשת",
     href: "/book",
     color: "from-purple-500 to-purple-600"
+  }
+];
+
+const projectInfo = [
+  {
+    icon: Target,
+    title: "מהו פרויקט הבגרות?",
+    description: "פרויקט הגמר במדעי המחשב הוא פרויקט פיתוח אפליקציית אנדרואיד מקיפה, המהווה חלק מרכזי מבחינת הבגרות ב-5 יחידות לימוד. הפרויקט נועד להוכיח שליטה בתכנות מונחה עצמים, שימוש במסדי נתונים, ויכולת פיתוח מערכת שלמה."
+  },
+  {
+    icon: Layers,
+    title: "מבנה הפרויקט",
+    description: "הפרויקט מורכב ממספר חלקים: אפליקציית אנדרואיד עובדת עם לפחות 4 מסכים, מסד נתונים SQLite, מימוש הרחבות מסעיפים 6, 9 ו-10, ספר פרויקט מפורט, ובחינה בעל פה. ציון ההגשה מהווה 50% מהציון הסופי."
+  },
+  {
+    icon: Clock,
+    title: "תהליך ההערכה",
+    description: "ציון הבגרות הסופי מורכב מ-50% ציון הגשה ו-50% בחינת בגרות. ציון ההגשה מורכב מ-80% בחינת מגן (30% ספר פרויקט + 70% בחינת מגן בע\"פ) ו-20% טריוויה (30% מסמך סיכום + 70% בחינת טריוויה)."
   }
 ];
 
@@ -97,6 +119,53 @@ export default function Index() {
                 </Link>
               </Button>
             </div>
+
+            {/* Official Link */}
+            <div className="mt-6 animate-slide-up" style={{ animationDelay: "0.3s" }}>
+              <a 
+                href="https://pop.education.gov.il/tchumey_daat/computers/tech-high/meyda_hadash_leyechidotmadac/5yech_pituah-yishum/pituach-yisumim-seferhanchayot" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-primary hover:underline"
+              >
+                <ExternalLink className="h-4 w-4" />
+                מחוון משרד החינוך הרשמי
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* About Project Section */}
+      <section className="py-16 md:py-24 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              על פרויקט הבגרות
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              מידע חשוב שכל תלמיד צריך לדעת לפני שמתחילים
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {projectInfo.map((info, index) => (
+              <div
+                key={info.title}
+                className="bg-card rounded-2xl p-6 shadow-card border border-border/50 animate-slide-up"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 text-primary mb-4">
+                  <info.icon className="h-6 w-6" />
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-3">
+                  {info.title}
+                </h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  {info.description}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -109,7 +178,7 @@ export default function Index() {
               כלים להצלחה
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              ארבעה כלים מרכזיים שילוו אותך לאורך כל הדרך לפרויקט מוצלח
+              חמישה כלים מרכזיים שילוו אותך לאורך כל הדרך לפרויקט מוצלח
             </p>
           </div>
           
