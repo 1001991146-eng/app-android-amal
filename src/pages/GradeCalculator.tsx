@@ -10,8 +10,8 @@ import {
   FileText,
   Trophy,
   Info,
-  ChevronDown,
-  ChevronUp
+  ArrowDown,
+  GraduationCap
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -22,13 +22,6 @@ export default function GradeCalculator() {
   const [triviaDocScore, setTriviaDocScore] = useState<string>(""); // מסמך מסכם (טריוויה)
   const [triviaExamScore, setTriviaExamScore] = useState<string>(""); // בחינה טריוויה
   const [bagrootExamScore, setBagrootExamScore] = useState<string>(""); // בחינת בגרות
-  const [showDetails, setShowDetails] = useState(true);
-
-  // הרכב הציון לפי המסמך הרשמי:
-  // ציון בגרות = 50% הגשה + 50% בחינה (בעל פה בגרות)
-  // ציון הגשה = 80% מתכונת + 20% טריוויה
-  // ציון מתכונת = 30% ספר פרויקט + 70% בחינה בעל פה (מתכונת)
-  // ציון טריוויה = 30% מסמך מסכם + 70% בחינה
 
   const calculations = useMemo(() => {
     const book = parseFloat(bookScore) || 0;
@@ -69,6 +62,13 @@ export default function GradeCalculator() {
     return "text-destructive";
   };
 
+  const getScoreBgColor = (score: number) => {
+    if (score >= 85) return "bg-success/10 border-success/30";
+    if (score >= 70) return "bg-warning/10 border-warning/30";
+    if (score >= 55) return "bg-orange-500/10 border-orange-500/30";
+    return "bg-destructive/10 border-destructive/30";
+  };
+
   const getScoreMessage = (score: number) => {
     if (score >= 90) return "מצוין!";
     if (score >= 80) return "טוב מאוד";
@@ -104,121 +104,128 @@ export default function GradeCalculator() {
         </div>
       </section>
 
-      {/* Grade Breakdown Info */}
-      <section className="py-8">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <button
-              onClick={() => setShowDetails(!showDetails)}
-              className="w-full bg-card rounded-xl border border-border/50 shadow-card p-5 flex items-center justify-between hover:bg-muted/30 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <Info className="h-5 w-5 text-primary" />
-                <span className="font-bold text-foreground">הרכב הציון הרשמי</span>
-              </div>
-              {showDetails ? (
-                <ChevronUp className="h-5 w-5 text-muted-foreground" />
-              ) : (
-                <ChevronDown className="h-5 w-5 text-muted-foreground" />
-              )}
-            </button>
+      <div className="container mx-auto px-4 py-12">
+        <div className="max-w-4xl mx-auto space-y-12">
 
-            {showDetails && (
-              <div className="mt-4 bg-card rounded-xl border border-border/50 shadow-card p-6 space-y-6 animate-slide-up">
-                {/* ציון בגרות */}
-                <div>
-                  <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
+          {/* Section 1: הסבר הרכב הציון */}
+          <section>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 text-primary font-bold">
+                1
+              </div>
+              <h2 className="text-2xl font-bold text-foreground">הרכב הציון</h2>
+            </div>
+            
+            <div className="bg-card rounded-xl border border-border/50 shadow-card p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Info className="h-5 w-5 text-primary" />
+                <span className="font-bold text-foreground">מבנה ציון הבגרות הרשמי</span>
+              </div>
+              
+              <div className="space-y-4">
+                {/* ציון סופי */}
+                <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
+                  <div className="flex items-center gap-2 mb-2">
                     <Trophy className="h-5 w-5 text-primary" />
-                    ציון בגרות סופי
-                  </h3>
+                    <span className="font-bold text-foreground">ציון בגרות סופי</span>
+                  </div>
                   <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className="bg-muted/50 rounded-lg p-3">
-                      <span className="text-muted-foreground">הגשה</span>
-                      <span className="float-left font-bold">50%</span>
+                    <div className="bg-background rounded-lg p-3 text-center">
+                      <div className="text-2xl font-bold text-foreground">50%</div>
+                      <div className="text-muted-foreground">ציון הגשה</div>
                     </div>
-                    <div className="bg-muted/50 rounded-lg p-3">
-                      <span className="text-muted-foreground">בחינה (בעל פה)</span>
-                      <span className="float-left font-bold">50%</span>
+                    <div className="bg-background rounded-lg p-3 text-center">
+                      <div className="text-2xl font-bold text-foreground">50%</div>
+                      <div className="text-muted-foreground">בחינת בגרות בע"פ</div>
                     </div>
                   </div>
+                </div>
+
+                <div className="flex justify-center">
+                  <ArrowDown className="h-6 w-6 text-muted-foreground" />
                 </div>
 
                 {/* ציון הגשה */}
-                <div>
-                  <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
+                <div className="p-4 bg-accent/5 rounded-lg border border-accent/20">
+                  <div className="flex items-center gap-2 mb-2">
                     <FileText className="h-5 w-5 text-accent" />
-                    ציון הגשה
-                  </h3>
+                    <span className="font-bold text-foreground">ציון הגשה (50% מהציון הסופי)</span>
+                  </div>
                   <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className="bg-muted/50 rounded-lg p-3">
-                      <span className="text-muted-foreground">מתכונת</span>
-                      <span className="float-left font-bold">80%</span>
+                    <div className="bg-background rounded-lg p-3 text-center">
+                      <div className="text-2xl font-bold text-foreground">80%</div>
+                      <div className="text-muted-foreground">ציון מתכונת</div>
                     </div>
-                    <div className="bg-muted/50 rounded-lg p-3">
-                      <span className="text-muted-foreground">טריוויה</span>
-                      <span className="float-left font-bold">20%</span>
+                    <div className="bg-background rounded-lg p-3 text-center">
+                      <div className="text-2xl font-bold text-foreground">20%</div>
+                      <div className="text-muted-foreground">ציון טריוויה</div>
                     </div>
                   </div>
                 </div>
 
-                {/* ציון מתכונת */}
-                <div>
-                  <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
-                    <BookOpen className="h-5 w-5 text-success" />
-                    ציון מתכונת
-                  </h3>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className="bg-muted/50 rounded-lg p-3">
-                      <span className="text-muted-foreground">ספר פרויקט</span>
-                      <span className="float-left font-bold">30%</span>
-                    </div>
-                    <div className="bg-muted/50 rounded-lg p-3">
-                      <span className="text-muted-foreground">בחינה בעל פה (מתכונת)</span>
-                      <span className="float-left font-bold">70%</span>
-                    </div>
-                  </div>
+                <div className="flex justify-center">
+                  <ArrowDown className="h-6 w-6 text-muted-foreground" />
                 </div>
 
-                {/* ציון טריוויה */}
-                <div>
-                  <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
-                    <PenTool className="h-5 w-5 text-warning" />
-                    ציון טריוויה
-                  </h3>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className="bg-muted/50 rounded-lg p-3">
-                      <span className="text-muted-foreground">מסמך מסכם</span>
-                      <span className="float-left font-bold">30%</span>
+                {/* מתכונת וטריוויה */}
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="p-4 bg-success/5 rounded-lg border border-success/20">
+                    <div className="flex items-center gap-2 mb-2">
+                      <BookOpen className="h-5 w-5 text-success" />
+                      <span className="font-bold text-foreground">ציון מתכונת</span>
                     </div>
-                    <div className="bg-muted/50 rounded-lg p-3">
-                      <span className="text-muted-foreground">בחינה</span>
-                      <span className="float-left font-bold">70%</span>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between bg-background rounded-lg p-2">
+                        <span className="text-muted-foreground">ספר פרויקט</span>
+                        <span className="font-bold">30%</span>
+                      </div>
+                      <div className="flex justify-between bg-background rounded-lg p-2">
+                        <span className="text-muted-foreground">בחינה בע"פ מתכונת</span>
+                        <span className="font-bold">70%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-warning/5 rounded-lg border border-warning/20">
+                    <div className="flex items-center gap-2 mb-2">
+                      <PenTool className="h-5 w-5 text-warning" />
+                      <span className="font-bold text-foreground">ציון טריוויה</span>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between bg-background rounded-lg p-2">
+                        <span className="text-muted-foreground">מסמך מסכם</span>
+                        <span className="font-bold">30%</span>
+                      </div>
+                      <div className="flex justify-between bg-background rounded-lg p-2">
+                        <span className="text-muted-foreground">בחינת טריוויה</span>
+                        <span className="font-bold">70%</span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            )}
-          </div>
-        </div>
-      </section>
+            </div>
+          </section>
 
-      {/* Calculator */}
-      <section className="py-8">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
-            {/* Input Section */}
-            <div className="space-y-6">
-              <h2 className="text-xl font-bold text-foreground mb-4">הכנס ציונים</h2>
-              
+          {/* Section 2: מילוי ציונים */}
+          <section>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 text-primary font-bold">
+                2
+              </div>
+              <h2 className="text-2xl font-bold text-foreground">מילוי ציונים</h2>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
               {/* מתכונת */}
-              <div className="bg-card rounded-xl border border-border/50 shadow-card p-6 space-y-4">
+              <div className="bg-card rounded-xl border border-success/30 shadow-card p-6 space-y-4">
                 <h3 className="font-bold text-foreground flex items-center gap-2">
-                  <BookOpen className="h-4 w-4 text-success" />
-                  ציון מתכונת
+                  <BookOpen className="h-5 w-5 text-success" />
+                  ציוני מתכונת
                 </h3>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="bookScore">ציון ספר פרויקט (30%)</Label>
+                    <Label htmlFor="bookScore" className="text-sm">ציון ספר פרויקט (30%)</Label>
                     <Input
                       id="bookScore"
                       type="number"
@@ -231,7 +238,7 @@ export default function GradeCalculator() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="oralExamScore">ציון בחינה בעל פה - מתכונת (70%)</Label>
+                    <Label htmlFor="oralExamScore" className="text-sm">ציון בחינה בעל פה - מתכונת (70%)</Label>
                     <Input
                       id="oralExamScore"
                       type="number"
@@ -244,17 +251,27 @@ export default function GradeCalculator() {
                     />
                   </div>
                 </div>
+                {(bookScore || oralExamScore) && (
+                  <div className={cn("p-3 rounded-lg border", getScoreBgColor(calculations.matkonetScore))}>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">ציון מתכונת:</span>
+                      <span className={cn("text-xl font-bold", getScoreColor(calculations.matkonetScore))}>
+                        {calculations.matkonetScore}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* טריוויה */}
-              <div className="bg-card rounded-xl border border-border/50 shadow-card p-6 space-y-4">
+              <div className="bg-card rounded-xl border border-warning/30 shadow-card p-6 space-y-4">
                 <h3 className="font-bold text-foreground flex items-center gap-2">
-                  <PenTool className="h-4 w-4 text-warning" />
-                  ציון טריוויה
+                  <PenTool className="h-5 w-5 text-warning" />
+                  ציוני טריוויה
                 </h3>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="triviaDocScore">ציון מסמך מסכם (30%)</Label>
+                    <Label htmlFor="triviaDocScore" className="text-sm">ציון מסמך מסכם (30%)</Label>
                     <Input
                       id="triviaDocScore"
                       type="number"
@@ -267,7 +284,7 @@ export default function GradeCalculator() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="triviaExamScore">ציון בחינת טריוויה (70%)</Label>
+                    <Label htmlFor="triviaExamScore" className="text-sm">ציון בחינת טריוויה (70%)</Label>
                     <Input
                       id="triviaExamScore"
                       type="number"
@@ -280,115 +297,132 @@ export default function GradeCalculator() {
                     />
                   </div>
                 </div>
+                {(triviaDocScore || triviaExamScore) && (
+                  <div className={cn("p-3 rounded-lg border", getScoreBgColor(calculations.triviaScore))}>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">ציון טריוויה:</span>
+                      <span className={cn("text-xl font-bold", getScoreColor(calculations.triviaScore))}>
+                        {calculations.triviaScore}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+
+          {/* Section 3: ציון הגשה */}
+          <section>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 text-primary font-bold">
+                3
+              </div>
+              <h2 className="text-2xl font-bold text-foreground">ציון הגשה</h2>
+            </div>
+            
+            <div className="bg-card rounded-xl border border-accent/30 shadow-card p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <FileText className="h-5 w-5 text-accent" />
+                <span className="font-bold text-foreground">חישוב ציון הגשה</span>
+              </div>
+              
+              <div className="bg-muted/30 rounded-lg p-4 mb-4">
+                <div className="text-sm text-muted-foreground mb-2">נוסחה:</div>
+                <div className="text-foreground font-mono text-sm">
+                  ציון הגשה = (ציון מתכונת × 80%) + (ציון טריוויה × 20%)
+                </div>
+                <div className="text-foreground font-mono text-sm mt-1">
+                  ציון הגשה = ({calculations.matkonetScore} × 0.8) + ({calculations.triviaScore} × 0.2)
+                </div>
               </div>
 
-              {/* בחינת בגרות */}
-              <div className="bg-card rounded-xl border border-border/50 shadow-card p-6 space-y-4">
-                <h3 className="font-bold text-foreground flex items-center gap-2">
-                  <Trophy className="h-4 w-4 text-primary" />
-                  בחינת בגרות
-                </h3>
-                <div>
-                  <Label htmlFor="bagrootExamScore">ציון בחינה בעל פה - בגרות (50%)</Label>
-                  <Input
-                    id="bagrootExamScore"
-                    type="number"
-                    min="0"
-                    max="100"
-                    placeholder="0-100"
-                    value={bagrootExamScore}
-                    onChange={(e) => setBagrootExamScore(e.target.value)}
-                    className="mt-1"
-                  />
+              <div className={cn("p-4 rounded-lg border text-center", getScoreBgColor(calculations.submissionScore))}>
+                <div className="text-sm text-muted-foreground mb-1">ציון הגשה</div>
+                <div className={cn("text-4xl font-bold", getScoreColor(calculations.submissionScore))}>
+                  {calculations.submissionScore}
                 </div>
               </div>
             </div>
+          </section>
 
-            {/* Results Section */}
-            <div className="space-y-6">
-              <h2 className="text-xl font-bold text-foreground mb-4">תוצאות</h2>
+          {/* Section 4: ציון בגרות */}
+          <section>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 text-primary font-bold">
+                4
+              </div>
+              <h2 className="text-2xl font-bold text-foreground">בחינת בגרות</h2>
+            </div>
+            
+            <div className="bg-card rounded-xl border border-primary/30 shadow-card p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <GraduationCap className="h-5 w-5 text-primary" />
+                <span className="font-bold text-foreground">ציון בחינת בגרות בעל פה</span>
+              </div>
+              
+              <div>
+                <Label htmlFor="bagrootExamScore" className="text-sm">ציון בחינה בעל פה - בגרות (50% מהציון הסופי)</Label>
+                <Input
+                  id="bagrootExamScore"
+                  type="number"
+                  min="0"
+                  max="100"
+                  placeholder="0-100"
+                  value={bagrootExamScore}
+                  onChange={(e) => setBagrootExamScore(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+            </div>
+          </section>
 
-              {/* Final Grade */}
-              <div className="bg-card rounded-2xl border border-border/50 shadow-elevated p-8 text-center">
-                <div className="flex items-center justify-center mb-4">
-                  <Trophy className={cn("h-12 w-12", getScoreColor(calculations.finalGrade))} />
+          {/* Section 5: ציון סופי */}
+          <section>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 text-primary font-bold">
+                5
+              </div>
+              <h2 className="text-2xl font-bold text-foreground">ציון בגרות סופי</h2>
+            </div>
+            
+            <div className="bg-card rounded-2xl border-2 border-primary/50 shadow-elevated p-8">
+              <div className="bg-muted/30 rounded-lg p-4 mb-6">
+                <div className="text-sm text-muted-foreground mb-2">נוסחה:</div>
+                <div className="text-foreground font-mono text-sm">
+                  ציון סופי = (ציון הגשה × 50%) + (בחינת בגרות × 50%)
                 </div>
-                <div className="text-sm text-muted-foreground mb-1">ציון בגרות צפוי</div>
-                <div className={cn("text-6xl font-bold mb-2", getScoreColor(calculations.finalGrade))}>
+                <div className="text-foreground font-mono text-sm mt-1">
+                  ציון סופי = ({calculations.submissionScore} × 0.5) + ({calculations.bagrootExamScore} × 0.5)
+                </div>
+              </div>
+
+              <div className="text-center">
+                <div className="flex items-center justify-center mb-4">
+                  <Trophy className={cn("h-16 w-16", getScoreColor(calculations.finalGrade))} />
+                </div>
+                <div className="text-sm text-muted-foreground mb-2">ציון בגרות צפוי</div>
+                <div className={cn("text-7xl font-bold mb-2", getScoreColor(calculations.finalGrade))}>
                   {calculations.finalGrade || 0}
                 </div>
-                <p className="text-lg text-muted-foreground">
+                <p className="text-xl text-muted-foreground">
                   {calculations.finalGrade > 0 ? getScoreMessage(calculations.finalGrade) : "הכנס ציונים לחישוב"}
                 </p>
               </div>
 
-              {/* Breakdown */}
-              <div className="bg-card rounded-xl border border-border/50 shadow-card p-6 space-y-4">
-                <h3 className="font-bold text-foreground">פירוט חישוב</h3>
-                
-                <div className="space-y-3">
-                  <div className="p-3 bg-success/10 rounded-lg border border-success/30">
-                    <div className="flex justify-between items-center">
-                      <span className="text-foreground font-medium">ציון מתכונת</span>
-                      <span className={cn("font-bold", getScoreColor(calculations.matkonetScore))}>
-                        {calculations.matkonetScore}
-                      </span>
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      = (ספר × 30%) + (בחינה בע"פ × 70%)
-                    </div>
-                  </div>
-                  
-                  <div className="p-3 bg-warning/10 rounded-lg border border-warning/30">
-                    <div className="flex justify-between items-center">
-                      <span className="text-foreground font-medium">ציון טריוויה</span>
-                      <span className={cn("font-bold", getScoreColor(calculations.triviaScore))}>
-                        {calculations.triviaScore}
-                      </span>
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      = (מסמך × 30%) + (בחינה × 70%)
-                    </div>
-                  </div>
-                  
-                  <div className="p-3 bg-accent/10 rounded-lg border border-accent/30">
-                    <div className="flex justify-between items-center">
-                      <span className="text-foreground font-medium">ציון הגשה</span>
-                      <span className={cn("font-bold", getScoreColor(calculations.submissionScore))}>
-                        {calculations.submissionScore}
-                      </span>
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      = (מתכונת × 80%) + (טריוויה × 20%)
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="pt-3 border-t border-border">
-                  <div className="flex justify-between items-center">
-                    <span className="font-bold text-foreground">ציון בגרות סופי</span>
-                    <span className={cn("text-2xl font-bold", getScoreColor(calculations.finalGrade))}>
-                      {calculations.finalGrade}
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    = (הגשה × 50%) + (בחינת בגרות × 50%)
-                  </p>
-                </div>
+              <div className="mt-6 pt-6 border-t border-border">
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={resetAll}
+                >
+                  אפס את כל הציונים
+                </Button>
               </div>
-
-              {/* Reset */}
-              <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={resetAll}
-              >
-                אפס ציונים
-              </Button>
             </div>
-          </div>
+          </section>
+
         </div>
-      </section>
+      </div>
     </Layout>
   );
 }
