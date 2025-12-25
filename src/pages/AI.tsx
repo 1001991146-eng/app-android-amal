@@ -9,7 +9,10 @@ import {
   MessageSquare,
   Puzzle,
   Target,
-  Zap
+  Zap,
+  AlertTriangle,
+  FileEdit,
+  Search
 } from "lucide-react";
 
 const aiUseCases = [
@@ -244,6 +247,137 @@ export default function AI() {
                   </li>
                 ))}
               </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Critical Thinking */}
+      <section className="py-12">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-8 text-center flex items-center justify-center gap-3">
+              <Search className="h-7 w-7 text-primary" />
+              חשיבה ביקורתית בשימוש ב-AI
+            </h2>
+            
+            <div className="bg-card rounded-xl border border-border/50 shadow-card p-6 space-y-6">
+              <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+                  <p className="text-foreground">
+                    <strong>AI עושה טעויות!</strong> בינה מלאכותית יכולה לתת מידע שגוי, קוד שלא עובד, או הסברים לא מדויקים. 
+                    תמיד בדקו את המידע ממקורות נוספים.
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="font-bold text-foreground">מה צריך לבדוק?</h3>
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-3">
+                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-bold">1</span>
+                    <div>
+                      <strong className="text-foreground">האם הקוד עובד?</strong>
+                      <p className="text-muted-foreground text-sm">הריצו את הקוד ובדקו שהוא אכן עובד כמצופה.</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-bold">2</span>
+                    <div>
+                      <strong className="text-foreground">האם ההסבר נכון?</strong>
+                      <p className="text-muted-foreground text-sm">השוו את ההסבר לתיעוד הרשמי של Android או למקורות אמינים אחרים.</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-bold">3</span>
+                    <div>
+                      <strong className="text-foreground">האם זה מתאים לפרויקט שלי?</strong>
+                      <p className="text-muted-foreground text-sm">קוד שעובד באופן כללי לא בהכרח מתאים לארכיטקטורה של הפרויקט שלכם.</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-bold">4</span>
+                    <div>
+                      <strong className="text-foreground">האם אני מבין את הקוד?</strong>
+                      <p className="text-muted-foreground text-sm">אם לא מבינים משהו - שאלו שאלות המשך עד שתבינו לגמרי.</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-bold">5</span>
+                    <div>
+                      <strong className="text-foreground">האם הגרסאות מתאימות?</strong>
+                      <p className="text-muted-foreground text-sm">AI לפעמים נותן קוד לגרסאות ישנות של Android או ספריות.</p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Documentation in Project Book */}
+      <section className="py-12 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-8 text-center flex items-center justify-center gap-3">
+              <FileEdit className="h-7 w-7 text-primary" />
+              תיעוד שימוש ב-AI בספר הפרויקט
+            </h2>
+            
+            <div className="bg-card rounded-xl border border-border/50 shadow-card p-6 space-y-6">
+              <p className="text-muted-foreground">
+                מומלץ לתעד בספר הפרויקט (בפרק הרפלקציה או נספחים) את אופן השימוש שלכם ב-AI. 
+                זה מראה על יושרה אקדמית ומודעות לכלים שהשתמשתם בהם.
+              </p>
+
+              <div className="space-y-4">
+                <h3 className="font-bold text-foreground">מה כדאי לתעד?</h3>
+                
+                <div className="grid gap-4">
+                  <div className="bg-muted/50 rounded-lg p-4">
+                    <h4 className="font-bold text-foreground mb-2">1. סוגי השימוש</h4>
+                    <p className="text-sm text-muted-foreground">
+                      תארו באילו תחומים השתמשתם ב-AI: הבנת מושגים, תיקון באגים, כתיבת קוד, ניסוח טקסטים וכו'.
+                    </p>
+                  </div>
+
+                  <div className="bg-muted/50 rounded-lg p-4">
+                    <h4 className="font-bold text-foreground mb-2">2. דוגמאות לפרומפטים</h4>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      ניתן לצרף דוגמאות לשאלות ששאלתם ואיך הן עזרו לכם:
+                    </p>
+                    <div className="bg-background rounded p-3 text-sm font-mono">
+                      <p className="text-foreground">"הסבר לי איך לממש AlarmManager עם BroadcastReceiver"</p>
+                      <p className="text-muted-foreground mt-2">→ עזר לי להבין את הקשר בין שני הרכיבים</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-muted/50 rounded-lg p-4">
+                    <h4 className="font-bold text-foreground mb-2">3. תהליך הלמידה</h4>
+                    <p className="text-sm text-muted-foreground">
+                      תארו איך השימוש ב-AI השפיע על תהליך הלמידה שלכם - מה למדתם, איך השתפרתם, ומה עשיתם אחרת בזכות העזרה.
+                    </p>
+                  </div>
+
+                  <div className="bg-muted/50 rounded-lg p-4">
+                    <h4 className="font-bold text-foreground mb-2">4. מגבלות ואתגרים</h4>
+                    <p className="text-sm text-muted-foreground">
+                      ציינו מקרים שבהם ה-AI טעה או לא עזר, ואיך התמודדתם עם זה.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-success/10 border border-success/30 rounded-lg p-4">
+                <h4 className="font-bold text-foreground mb-2">💡 דוגמה לפסקת רפלקציה:</h4>
+                <p className="text-sm text-muted-foreground italic">
+                  "במהלך פיתוח הפרויקט השתמשתי בכלי AI (ChatGPT) כעזר ללמידה. השתמשתי בו בעיקר להבנת מושגים חדשים כמו Service ו-BroadcastReceiver, 
+                  ולקבלת הסברים על שגיאות שנתקלתי בהן. כל קוד שקיבלתי מ-AI עברתי עליו, הבנתי אותו, והתאמתי לפרויקט שלי. 
+                  היו מקרים שבהם הקוד שקיבלתי לא עבד ונאלצתי לחפש פתרונות נוספים, מה שלימד אותי על חשיבות הבדיקה והחשיבה הביקורתית."
+                </p>
+              </div>
             </div>
           </div>
         </div>
