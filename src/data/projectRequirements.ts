@@ -118,13 +118,13 @@ export const projectRequirements: RequirementCategory[] = [
       },
       {
         id: "database",
-        name: "מסד נתונים SQLite",
-        description: "אחסון קבוע של נתונים",
+        name: "מסד נתונים (SQLite / Firebase)",
+        description: "אחסון קבוע של נתונים - ניתן לבחור SQLite או Firebase",
         subItems: [
-          "SQLiteOpenHelper",
-          "יצירת טבלאות",
-          "פעולות CRUD",
-          "שימוש ב-Cursor"
+          "הוספת נתונים (Insert)",
+          "עדכון נתונים (Update)",
+          "מחיקת נתונים (Delete)",
+          "שליפת נתונים (Select/Read)"
         ]
       }
     ]
