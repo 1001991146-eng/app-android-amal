@@ -12,7 +12,8 @@ import {
   Star,
   Zap,
   Layers,
-  Sparkles
+  Sparkles,
+  ExternalLink
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -247,10 +248,19 @@ export default function Extensions() {
             <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               מדריך ההרחבות
             </h1>
-            <p className="text-lg text-muted-foreground">
+            <p className="text-lg text-muted-foreground mb-4">
               כל ההרחבות הנדרשות לפרויקט בגרות עם הסברים תאורטיים, 
               עקרונות חשובים ודוגמאות קוד מפורטות
             </p>
+            <a 
+              href="https://pop.education.gov.il/tchumey_daat/computers/tech-high/meyda_hadash_leyechidotmadac/5yech_pituah-yishum/pituach-yisumim-seferhanchayot" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              <ExternalLink className="h-4 w-4" />
+              מחוון משרד החינוך
+            </a>
           </div>
         </div>
       </section>
