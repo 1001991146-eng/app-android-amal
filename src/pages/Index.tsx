@@ -14,7 +14,8 @@ import {
   Target,
   Layers,
   Clock,
-  Calculator
+  Calculator,
+  Brain
 } from "lucide-react";
 
 const features = [
@@ -59,6 +60,13 @@ const features = [
     description: "חשב את ציון הבגרות הצפוי שלך לפי הרכב הציון הרשמי",
     href: "/grade-calculator",
     color: "from-rose-500 to-rose-600"
+  },
+  {
+    icon: Brain,
+    title: "בינה מלאכותית",
+    description: "איך AI יכול לסייע לך בפיתוח הפרויקט ובלמידה",
+    href: "/ai",
+    color: "from-cyan-500 to-cyan-600"
   }
 ];
 
@@ -195,7 +203,7 @@ export default function Index() {
               כלים להצלחה
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              שישה כלים מרכזיים שילוו אותך לאורך כל הדרך לפרויקט מוצלח
+              שבעה כלים מרכזיים שילוו אותך לאורך כל הדרך לפרויקט מוצלח
             </p>
           </div>
           
