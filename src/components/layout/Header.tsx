@@ -30,7 +30,7 @@ export function Header() {
               className="h-10 md:h-12 object-contain"
             />
             <span className="text-xs md:text-sm text-muted-foreground">
-              נערך על ידי מריאלה שטיין
+              נערך על ידי מריאלה שטיין ואופיר ונדר
             </span>
           </div>
         </div>
