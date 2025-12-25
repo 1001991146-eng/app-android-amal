@@ -252,15 +252,26 @@ export default function Extensions() {
               כל ההרחבות הנדרשות לפרויקט בגרות עם הסברים תאורטיים, 
               עקרונות חשובים ודוגמאות קוד מפורטות
             </p>
-            <a 
-              href="https://meyda.education.gov.il/files/CSIT/smartphonesProject-5.pdf"
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-primary hover:underline"
-            >
-              <ExternalLink className="h-4 w-4" />
-              מחוון משרד החינוך
-            </a>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a 
+                href="https://meyda.education.gov.il/files/CSIT/smartphonesProject-5.pdf"
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-primary hover:underline"
+              >
+                <ExternalLink className="h-4 w-4" />
+                מחוון פרויקט רשמי
+              </a>
+              <a 
+                href="https://meyda.education.gov.il/files/CSIT/Smartphones-Project.pdf"
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-primary hover:underline"
+              >
+                <ExternalLink className="h-4 w-4" />
+                מחוון ספר רשמי
+              </a>
+            </div>
           </div>
         </div>
       </section>
