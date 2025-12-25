@@ -10,6 +10,7 @@ import Practice from "./pages/Practice";
 import Book from "./pages/Book";
 import BookChecker from "./pages/BookChecker";
 import GradeCalculator from "./pages/GradeCalculator";
+import AI from "./pages/AI";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/practice" element={<Practice />} />
           <Route path="/book" element={<Book />} />
           <Route path="/grade-calculator" element={<GradeCalculator />} />
+          <Route path="/ai" element={<AI />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
