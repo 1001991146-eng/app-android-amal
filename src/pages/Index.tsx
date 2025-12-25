@@ -128,8 +128,8 @@ export default function Index() {
               </Button>
             </div>
 
-            {/* Official Link */}
-            <div className="mt-6 animate-slide-up" style={{ animationDelay: "0.3s" }}>
+            {/* Official Links */}
+            <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center animate-slide-up" style={{ animationDelay: "0.3s" }}>
               <a 
                 href="https://meyda.education.gov.il/files/CSIT/smartphonesProject-5.pdf"
                 target="_blank" 
@@ -137,7 +137,16 @@ export default function Index() {
                 className="inline-flex items-center gap-2 text-primary hover:underline"
               >
                 <ExternalLink className="h-4 w-4" />
-                מחוון משרד החינוך הרשמי
+                מחוון פרויקט רשמי
+              </a>
+              <a 
+                href="https://meyda.education.gov.il/files/CSIT/Smartphones-Project.pdf"
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-primary hover:underline"
+              >
+                <ExternalLink className="h-4 w-4" />
+                מחוון ספר רשמי
               </a>
             </div>
           </div>
