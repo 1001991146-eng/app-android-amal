@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// דרישות ספר הפרויקט לפי התבנית
+// דרישות ספר הפרויקט לפי המחוון הרשמי של משרד החינוך
 interface BookRequirement {
   id: string;
   name: string;
@@ -28,170 +28,142 @@ interface BookCategory {
   requirements: BookRequirement[];
 }
 
+// מחוון ספר הפרויקט - לפי המסמך הרשמי (עמוד 3)
 const bookRequirements: BookCategory[] = [
   {
-    id: "intro",
-    name: "מבוא",
+    id: "format",
+    name: "עיצוב ופורמט",
     weight: 15,
     requirements: [
       {
-        id: "project-name",
-        name: "שם הפרויקט",
-        description: "כותרת ברורה ומשמעותית לפרויקט"
+        id: "cover",
+        name: "שער",
+        description: "דף פתיחה עם שם הפרויקט ופרטים"
       },
       {
-        id: "summary",
-        name: "תקציר",
-        description: "תיאור קצר של הפרויקט ומטרותיו",
-        subItems: [
-          "תיאור כללי של האפליקציה",
-          "המוטיבציה מאחורי הפרויקט",
-          "קהל היעד"
-        ]
+        id: "toc",
+        name: "תוכן עניינים",
+        description: "רשימת פרקים ועמודים"
       },
       {
-        id: "goals",
-        name: "מטרות הפרויקט",
-        description: "רשימת המטרות שהפרויקט אמור להשיג"
+        id: "font",
+        name: "גופן אחיד",
+        description: "שימוש עקבי בגופן אחד"
+      },
+      {
+        id: "headers",
+        name: "כותרות",
+        description: "כותרות ברורות לכל פרק"
+      },
+      {
+        id: "page-numbers",
+        name: "מספרי עמודים",
+        description: "מספור עמודים רציף"
+      },
+      {
+        id: "layout",
+        name: "עימוד אחיד",
+        description: "עימוד עקבי ונקי"
       }
     ]
   },
   {
-    id: "architecture",
-    name: "מבנה וארכיטקטורה",
-    weight: 20,
+    id: "intro",
+    name: "מבוא ואפיון",
+    weight: 5,
     requirements: [
       {
-        id: "flowchart",
-        name: "תרשים זרימה",
-        description: "תרשים המציג את זרימת האפליקציה"
-      },
-      {
-        id: "screens-diagram",
-        name: "תרשים מסכים",
-        description: "מפה של כל המסכים והקשרים ביניהם",
-        subItems: [
-          "רשימת כל המסכים",
-          "תיאור כל מסך",
-          "קשרי הניווט בין המסכים"
-        ]
-      },
-      {
-        id: "class-diagram",
-        name: "תרשים מחלקות (UML)",
-        description: "תרשים המציג את המחלקות והקשרים ביניהן"
+        id: "project-intro",
+        name: "הצגת הפרויקט",
+        description: "תיאור מטרת הפרויקט, יעדיו, מהות המערכת, תזמון הפעלתה (עמוד אחד מתומצת)"
       }
     ]
   },
   {
-    id: "implementation",
-    name: "מימוש",
-    weight: 30,
+    id: "requirements",
+    name: "דרישות מערכת וממשק",
+    weight: 5,
     requirements: [
       {
-        id: "activities-doc",
-        name: "פירוט Activities",
-        description: "תיעוד מפורט של כל Activity",
-        subItems: [
-          "שם ותפקיד כל Activity",
-          "רכיבי ממשק המשתמש",
-          "לוגיקה עסקית",
-          "אינטראקציות עם מסכים אחרים"
-        ]
-      },
-      {
-        id: "objects-doc",
-        name: "פירוט עצמים",
-        description: "תיעוד מחלקות העצמים",
-        subItems: [
-          "שם ותיאור המחלקה",
-          "תכונות (שדות)",
-          "פעולות בונות",
-          "פעולות (methods)"
-        ]
-      },
-      {
-        id: "database-doc",
-        name: "תיעוד מסד הנתונים",
-        description: "תיאור טבלאות ומבנה הנתונים",
-        subItems: [
-          "תרשים ERD",
-          "תיאור כל טבלה",
-          "שדות וסוגי נתונים",
-          "קשרים בין טבלאות"
-        ]
-      },
-      {
-        id: "extensions-doc",
-        name: "תיעוד הרחבות",
-        description: "הסבר על ההרחבות שנבחרו ואופן המימוש שלהן"
+        id: "system-req",
+        name: "דרישות מערכת וממשק",
+        description: "תיאור כללי של ממשק המשתמש, עיצוב מסכים, דגש על הנדסת אנוש, אסתטיקה, ונוחות שימוש"
       }
     ]
   },
   {
     id: "user-guide",
     name: "מדריך למשתמש",
+    weight: 10,
+    requirements: [
+      {
+        id: "guide",
+        name: "מדריך למשתמש מפורט",
+        description: "מדריך מפורט וברור, חייב לכלול צילומי מסך של כל מסכי האפליקציה והסברים על אופן הפעולה של כל פקד ומסך"
+      }
+    ]
+  },
+  {
+    id: "architecture",
+    name: "מבנה/ארכיטקטורה",
+    weight: 10,
+    requirements: [
+      {
+        id: "uml",
+        name: "תרשימי מחלקות (UML)",
+        description: "הצגת תרשים מחלקות, עצי מחלקות, הסבר תמציתי על הפעולות העיקריות"
+      }
+    ]
+  },
+  {
+    id: "flowcharts",
+    name: "תרשימי זרימה",
     weight: 15,
     requirements: [
       {
-        id: "installation",
-        name: "הוראות התקנה",
-        description: "דרישות מינימום והוראות התקנה"
-      },
-      {
-        id: "usage",
-        name: "הפעלה ושימוש",
-        description: "מדריך צעד-אחר-צעד לשימוש באפליקציה",
-        subItems: [
-          "צילומי מסך עם הסברים",
-          "תיאור הפונקציות העיקריות",
-          "טיפים לשימוש"
-        ]
-      },
-      {
-        id: "limitations",
-        name: "מגבלות ואילוצים",
-        description: "מגבלות ידועות והמלצות"
+        id: "flow",
+        name: "תרשימי זרימה רלוונטיים",
+        description: "מבנה הפרויקט (הכלה/הורשה), ארגון הקבצים, תרשימי זרימה רלוונטיים"
       }
     ]
   },
   {
-    id: "reflection",
-    name: "רפלקציה וסיכום",
+    id: "database",
+    name: "בסיס נתונים",
     weight: 10,
     requirements: [
       {
-        id: "process",
-        name: "תהליך הפיתוח",
-        description: "תיאור תהליך הפיתוח, אתגרים ופתרונות"
-      },
-      {
-        id: "learnings",
-        name: "לקחים",
-        description: "מה למדתי מהפרויקט"
-      },
-      {
-        id: "future",
-        name: "פיתוח עתידי",
-        description: "רעיונות לשיפורים והרחבות"
+        id: "db-design",
+        name: "תיאור ארגון הנתונים",
+        description: "תיאור ארגון הנתונים המאוחסנים, שיטת השמירה שנבחרה, והצגת דוגמאות לכל טבלה או סוג נתון"
       }
     ]
   },
   {
-    id: "bibliography",
-    name: "ביבליוגרפיה",
-    weight: 10,
+    id: "implementation",
+    name: "מימוש הפרויקט",
+    weight: 25,
     requirements: [
       {
-        id: "sources",
-        name: "מקורות",
-        description: "רשימת כל המקורות ששימשו בפרויקט",
+        id: "code",
+        name: "קוד הפרויקט",
+        description: "המרכיב בעל המשקל הגבוה ביותר - דגש על תכנות מונחה עצמים, שימוש במחלקות שהתלמיד יצר",
         subItems: [
-          "אתרים",
-          "ספרים",
-          "סרטוני הדרכה",
-          "קוד מקור שהשתמשתי בו"
+          "חלוקת הקוד לפעולות עם תיעוד (Comments/Docstrings)",
+          "הפרדה ברורה בין לוגיקת הממשק הגרפי לבין הלוגיקה העסקית"
         ]
+      }
+    ]
+  },
+  {
+    id: "summary",
+    name: "סיכום אישי",
+    weight: 5,
+    requirements: [
+      {
+        id: "personal",
+        name: "רפלקציה מעמיקה",
+        description: "רפלקציה מעמיקה על תהליך העבודה: מה למדת, מהן החוזקות, בדיקות האפליקציה והממשק הגרפי (לא משפט תודה)"
       }
     ]
   }
@@ -274,8 +246,10 @@ export default function BookChecker() {
               בודק ספר פרויקט
             </h1>
             <p className="text-lg text-muted-foreground">
-              סמן את כל הפריטים שכתבת בספר הפרויקט כדי לוודא 
-              שהוא מכיל את כל הנדרש לפי התבנית
+              בדוק את ספר הפרויקט שלך לפי המחוון הרשמי של משרד החינוך
+            </p>
+            <p className="text-sm text-muted-foreground mt-2">
+              ספר הפרויקט = 30% מציון המתכונת
             </p>
           </div>
         </div>
@@ -422,6 +396,49 @@ export default function BookChecker() {
                 </div>
               );
             })}
+
+            {/* Info Box */}
+            <div className="bg-muted/50 rounded-xl p-6">
+              <h3 className="font-bold text-foreground mb-4">הרכב ציון ספר הפרויקט לפי המחוון הרשמי</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                <div className="bg-background rounded-lg p-3">
+                  <div className="font-medium">עיצוב ופורמט</div>
+                  <div className="text-muted-foreground">15%</div>
+                </div>
+                <div className="bg-background rounded-lg p-3">
+                  <div className="font-medium">מבוא ואפיון</div>
+                  <div className="text-muted-foreground">5%</div>
+                </div>
+                <div className="bg-background rounded-lg p-3">
+                  <div className="font-medium">דרישות וממשק</div>
+                  <div className="text-muted-foreground">5%</div>
+                </div>
+                <div className="bg-background rounded-lg p-3">
+                  <div className="font-medium">מדריך למשתמש</div>
+                  <div className="text-muted-foreground">10%</div>
+                </div>
+                <div className="bg-background rounded-lg p-3">
+                  <div className="font-medium">ארכיטקטורה (UML)</div>
+                  <div className="text-muted-foreground">10%</div>
+                </div>
+                <div className="bg-background rounded-lg p-3">
+                  <div className="font-medium">תרשימי זרימה</div>
+                  <div className="text-muted-foreground">15%</div>
+                </div>
+                <div className="bg-background rounded-lg p-3">
+                  <div className="font-medium">בסיס נתונים</div>
+                  <div className="text-muted-foreground">10%</div>
+                </div>
+                <div className="bg-background rounded-lg p-3">
+                  <div className="font-medium">מימוש (קוד)</div>
+                  <div className="text-muted-foreground">25%</div>
+                </div>
+                <div className="bg-background rounded-lg p-3">
+                  <div className="font-medium">סיכום אישי</div>
+                  <div className="text-muted-foreground">5%</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
