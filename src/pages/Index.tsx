@@ -41,7 +41,7 @@ const features = [
   },
   {
     icon: FileText,
-    title: "בודק ספר פרויקט",
+    title: "בודק ספר",
     description: "בדוק אם ספר הפרויקט שלך מכיל את כל הפרקים הנדרשים",
     href: "/book-checker",
     color: "from-indigo-500 to-indigo-600"
