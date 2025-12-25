@@ -6,13 +6,12 @@ import { cn } from "@/lib/utils";
 import schoolLogo from "@/assets/school-logo.png";
 
 const navigation = [
-  { name: "דף הבית", href: "/", icon: BookOpen },
   { name: "הרחבות", href: "/extensions", icon: GraduationCap },
+  { name: "כותב ספר", href: "/book", icon: FileText },
   { name: "בודק פרויקט", href: "/checker", icon: CheckSquare },
   { name: "בודק ספר", href: "/book-checker", icon: FileText },
-  { name: "תרגול", href: "/practice", icon: FileText },
-  { name: "ספר פרויקט", href: "/book", icon: FileText },
-  { name: "מחשבון ציון", href: "/grade-calculator", icon: Calculator },
+  { name: "תרגול לבחינה", href: "/practice", icon: BookOpen },
+  { name: "מחשבון בגרות", href: "/grade-calculator", icon: Calculator },
 ];
 
 export function Header() {
