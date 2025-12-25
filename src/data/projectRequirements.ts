@@ -1,10 +1,10 @@
-// דרישות הפרויקט לפי המחוון
-// Project requirements based on the rubric
+// דרישות הפרויקט לבדיקה שהפרויקט עומד בדרישות 5 יחל"מ
+// הבודק מתמקד בדרישות הטכניות של הפרויקט עצמו
 
 export interface RequirementCategory {
   id: string;
   name: string;
-  weight: number;
+  description?: string;
   requirements: Requirement[];
 }
 
@@ -18,153 +18,252 @@ export interface Requirement {
 
 export const projectRequirements: RequirementCategory[] = [
   {
-    id: "complexity",
-    name: "מורכבות הפרויקט",
-    weight: 35,
+    id: "objects",
+    name: "עצמים ומחלקות",
+    description: "שימוש בתכנות מונחה עצמים",
     requirements: [
       {
-        id: "objects",
-        name: "שימוש בעצמים",
-        description: "הגדרת מחלקות עצמים עם תכונות, פעולות בונות ופעולות",
+        id: "class-definition",
+        name: "הגדרת מחלקות",
+        description: "יצירת מחלקות עצמים עם תכונות ופעולות",
         subItems: [
           "לפחות 2 מחלקות עצמים שונות",
-          "תכונות (משתנים) במחלקה",
-          "פעולות בונות (Constructors)",
-          "פעולות (Methods) - getters, setters ופעולות נוספות"
-        ]
-      },
-      {
-        id: "data-structures",
-        name: "מבני נתונים",
-        description: "שימוש במבני נתונים מתאימים לאחסון וניהול מידע",
-        subItems: [
-          "ArrayList או מערכים",
-          "ניהול רשימות של עצמים",
-          "חיפוש, מיון, הוספה ומחיקה"
-        ]
-      },
-      {
-        id: "database",
-        name: "אחסון וטיפול בנתונים",
-        description: "שימוש ב-SQLite לשמירת נתונים",
-        subItems: [
-          "יצירת טבלאות מתאימות",
-          "פעולות CRUD (יצירה, קריאה, עדכון, מחיקה)",
-          "שימוש ב-SQLiteOpenHelper",
-          "ניהול גרסאות מסד הנתונים"
-        ]
-      },
-      {
-        id: "activities",
-        name: "ריבוי מסכים",
-        description: "שימוש במספר Activities עם ניווט ביניהם",
-        subItems: [
-          "לפחות 3 מסכים (Activities) שונים",
-          "מעבר בין מסכים עם Intent",
-          "העברת נתונים בין מסכים"
+          "תכונות (משתנים פרטיים) במחלקה",
+          "פעולה בונה (Constructor)",
+          "פעולות Getters",
+          "פעולות Setters",
+          "פעולות נוספות (לוגיקה עסקית)"
         ]
       }
     ]
   },
   {
-    id: "extensions",
-    name: "הרחבות נדרשות",
-    weight: 25,
+    id: "data-structures",
+    name: "מבני נתונים",
+    description: "שימוש במבני נתונים לאחסון וניהול מידע",
     requirements: [
       {
-        id: "required-ext",
-        name: "הרחבות מסעיף 6",
-        description: "נושא אחד מרשימת ההרחבות הבסיסיות",
+        id: "collections",
+        name: "אוספים ומערכים",
+        description: "שימוש ב-ArrayList או מערכים",
         subItems: [
-          "AlarmManager",
-          "Notification",
-          "JobScheduler",
-          "הורדת נתונים מהאינטרנט (API)",
-          "Service",
-          "ActivityForResult",
-          "ContentProvider",
-          "יצירת אנימציה"
+          "ArrayList או מערך לאחסון עצמים",
+          "הוספת פריטים לרשימה",
+          "הסרת פריטים מהרשימה",
+          "חיפוש ברשימה",
+          "מעבר על הרשימה (לולאה)"
         ]
-      },
+      }
+    ]
+  },
+  {
+    id: "database",
+    name: "מסד נתונים SQLite",
+    description: "אחסון קבוע של נתונים במסד נתונים",
+    requirements: [
       {
-        id: "advanced-ext",
-        name: "נושאים מתקדמים מסעיף 9",
-        description: "נושא אחד מהרשימה המתקדמת",
+        id: "sqlite",
+        name: "עבודה עם SQLite",
+        description: "שימוש ב-SQLite לשמירת נתונים",
+        subItems: [
+          "מחלקה שיורשת מ-SQLiteOpenHelper",
+          "יצירת טבלאות (CREATE TABLE)",
+          "הוספת נתונים (INSERT)",
+          "קריאת נתונים (SELECT)",
+          "עדכון נתונים (UPDATE)",
+          "מחיקת נתונים (DELETE)",
+          "שימוש ב-Cursor"
+        ]
+      }
+    ]
+  },
+  {
+    id: "activities",
+    name: "מסכים וניווט",
+    description: "ריבוי מסכים והעברת נתונים ביניהם",
+    requirements: [
+      {
+        id: "multi-screen",
+        name: "ריבוי מסכים",
+        description: "שימוש במספר Activities",
+        subItems: [
+          "לפחות 3 מסכים (Activities) שונים",
+          "מעבר בין מסכים עם Intent",
+          "העברת נתונים עם putExtra",
+          "קבלת נתונים עם getIntent"
+        ]
+      }
+    ]
+  },
+  {
+    id: "ui",
+    name: "ממשק משתמש",
+    description: "עיצוב ורכיבי UI",
+    requirements: [
+      {
+        id: "ui-components",
+        name: "רכיבי ממשק",
+        description: "שימוש ברכיבי UI מגוונים",
+        subItems: [
+          "TextView להצגת טקסט",
+          "EditText לקלט מהמשתמש",
+          "Button לפעולות",
+          "ImageView לתמונות",
+          "ListView או RecyclerView לרשימות",
+          "Layout מתאים (Linear/Relative/Constraint)"
+        ]
+      }
+    ]
+  },
+  {
+    id: "extensions-basic",
+    name: "הרחבות בסיסיות (סעיף 6)",
+    description: "לפחות נושא אחד מהרשימה - שווה נקודה אחת",
+    requirements: [
+      {
+        id: "ext-6",
+        name: "בחר הרחבה אחת לפחות",
+        description: "סמן את ההרחבות שמימשת",
+        subItems: [
+          "AlarmManager - תזמון משימות",
+          "Notification - התראות",
+          "JobScheduler - תזמון עבודות",
+          "הורדת נתונים מהאינטרנט (API)",
+          "Service - שירות ברקע",
+          "ActivityForResult - קבלת תוצאה מ-Activity",
+          "ContentProvider - שיתוף נתונים",
+          "אנימציות (Animation)"
+        ]
+      }
+    ]
+  },
+  {
+    id: "extensions-advanced",
+    name: "נושאים מתקדמים (סעיף 9)",
+    description: "לפחות נושא אחד מהרשימה - שווה נקודה אחת",
+    requirements: [
+      {
+        id: "ext-9",
+        name: "בחר נושא מתקדם אחד לפחות",
+        description: "סמן את הנושאים המתקדמים שמימשת",
         subItems: [
           "חיישנים (Sensors)",
-          "SurfaceView",
+          "SurfaceView - ציור מתקדם",
           "ירושה ממחלקת View",
-          "GoogleMaps",
-          "Fragment",
-          "Threads",
+          "Google Maps - מפות",
+          "Fragments",
+          "Threads - ריבוי תהליכים",
           "NFC",
           "Bluetooth",
+          "Firebase",
           "API בצד שרת"
         ]
-      },
+      }
+    ]
+  },
+  {
+    id: "extensions-combined",
+    name: "נושאים משולבים (סעיף 10)",
+    description: "שילוב של 2 נושאים = נקודה אחת (שווה ערך לנושא מתקדם)",
+    requirements: [
       {
-        id: "combined-ext",
-        name: "נושאים משולבים מסעיף 10",
-        description: "שילוב של 2 נושאים קטנים (שווה ערך לנושא מתקדם אחד)",
+        id: "ext-10",
+        name: "נושאים משולבים (צריך 2 לנקודה)",
+        description: "סמן את הנושאים המשולבים שמימשת",
         subItems: [
           "BroadcastReceiver",
           "SharedPreferences",
-          "Camera & Gallery",
-          "GPS",
+          "Camera - מצלמה",
+          "Gallery - גלריה",
+          "GPS - מיקום",
           "CountDownTimer",
           "Handler",
           "TextToSpeech",
           "SpeechToText",
-          "Microphone"
+          "Microphone - הקלטת שמע",
+          "Singleton"
         ]
-      }
-    ]
-  },
-  {
-    id: "documentation",
-    name: "תיעוד ספר הפרויקט",
-    weight: 25,
-    requirements: [
-      {
-        id: "doc-note",
-        name: "בדיקת ספר הפרויקט",
-        description: "לבדיקה מפורטת של ספר הפרויקט השתמש בבודק ספר"
-      }
-    ]
-  },
-  {
-    id: "presentation",
-    name: "הצגה בעל פה",
-    weight: 15,
-    requirements: [
-      {
-        id: "demo",
-        name: "הדגמת האפליקציה",
-        description: "הצגה פעילה של האפליקציה והסבר על הפונקציונליות"
-      },
-      {
-        id: "code-explanation",
-        name: "הסבר קוד",
-        description: "יכולת להסביר את הקוד ואת ההחלטות שהתקבלו"
-      },
-      {
-        id: "questions",
-        name: "מענה על שאלות",
-        description: "יכולת לענות על שאלות הבוחן בנושאי הפרויקט"
       }
     ]
   }
 ];
 
-export const getTotalPoints = (checkedItems: Set<string>): number => {
-  let total = 0;
-  projectRequirements.forEach(category => {
-    const categoryItems = category.requirements.flatMap(req => 
-      req.subItems ? req.subItems.map((_, i) => `${req.id}-${i}`) : [req.id]
-    );
-    const checked = categoryItems.filter(id => checkedItems.has(id)).length;
-    const totalInCategory = categoryItems.length;
-    total += (checked / totalInCategory) * category.weight;
+// חישוב האם הפרויקט עומד בדרישות 5 יחל"מ
+export const checkProjectValidity = (checkedItems: Set<string>): {
+  isValid: boolean;
+  extensionPoints: number;
+  missingRequirements: string[];
+} => {
+  const missingRequirements: string[] = [];
+  
+  // בדיקת דרישות בסיסיות
+  const basicCategories = ["objects", "data-structures", "database", "activities", "ui"];
+  basicCategories.forEach(catId => {
+    const category = projectRequirements.find(c => c.id === catId);
+    if (category) {
+      const allItems = category.requirements.flatMap(req =>
+        req.subItems ? req.subItems.map((_, i) => `${req.id}-${i}`) : [req.id]
+      );
+      const checkedCount = allItems.filter(id => checkedItems.has(id)).length;
+      if (checkedCount < allItems.length * 0.5) {
+        missingRequirements.push(category.name);
+      }
+    }
   });
-  return Math.round(total);
+
+  // חישוב נקודות הרחבות
+  let extensionPoints = 0;
+
+  // הרחבות בסיסיות (סעיף 6) - כל אחת שווה נקודה
+  const ext6Items = projectRequirements.find(c => c.id === "extensions-basic")
+    ?.requirements[0].subItems || [];
+  const ext6Checked = ext6Items.filter((_, i) => checkedItems.has(`ext-6-${i}`)).length;
+  extensionPoints += ext6Checked;
+
+  // נושאים מתקדמים (סעיף 9) - כל אחד שווה נקודה
+  const ext9Items = projectRequirements.find(c => c.id === "extensions-advanced")
+    ?.requirements[0].subItems || [];
+  const ext9Checked = ext9Items.filter((_, i) => checkedItems.has(`ext-9-${i}`)).length;
+  extensionPoints += ext9Checked;
+
+  // נושאים משולבים (סעיף 10) - כל 2 שווים נקודה
+  const ext10Items = projectRequirements.find(c => c.id === "extensions-combined")
+    ?.requirements[0].subItems || [];
+  const ext10Checked = ext10Items.filter((_, i) => checkedItems.has(`ext-10-${i}`)).length;
+  extensionPoints += Math.floor(ext10Checked / 2);
+
+  // בדיקה האם עומד בדרישות 5 יחל"מ
+  // דרישות: הרחבות גדולות 6, בינוניות 9, או קטנות 10 (סה"כ 5 נקודות הרחבות)
+  const isValid = missingRequirements.length === 0 && extensionPoints >= 5;
+
+  if (extensionPoints < 5) {
+    missingRequirements.push(`נדרשות עוד ${5 - extensionPoints} נקודות הרחבות`);
+  }
+
+  return { isValid, extensionPoints, missingRequirements };
 };
+
+// חישוב אחוז השלמה כללי
+export const getTotalProgress = (checkedItems: Set<string>): number => {
+  let totalItems = 0;
+  let checkedCount = 0;
+
+  projectRequirements.forEach(category => {
+    category.requirements.forEach(req => {
+      if (req.subItems) {
+        totalItems += req.subItems.length;
+        req.subItems.forEach((_, i) => {
+          if (checkedItems.has(`${req.id}-${i}`)) checkedCount++;
+        });
+      } else {
+        totalItems += 1;
+        if (checkedItems.has(req.id)) checkedCount++;
+      }
+    });
+  });
+
+  return Math.round((checkedCount / totalItems) * 100);
+};
+
+// לתאימות אחורה
+export const getTotalPoints = getTotalProgress;
