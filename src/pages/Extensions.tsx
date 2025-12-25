@@ -253,7 +253,7 @@ export default function Extensions() {
               עקרונות חשובים ודוגמאות קוד מפורטות
             </p>
             <a 
-              href="https://pop.education.gov.il/tchumey_daat/computers/tech-high/meyda_hadash_leyechidotmadac/5yech_pituah-yishum/pituach-yisumim-seferhanchayot" 
+              href="https://meyda.education.gov.il/files/CSIT/smartphonesProject-5.pdf"
               target="_blank" 
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-primary hover:underline"
