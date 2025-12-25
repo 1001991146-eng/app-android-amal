@@ -26,6 +26,13 @@ const features = [
     color: "from-blue-500 to-blue-600"
   },
   {
+    icon: FileText,
+    title: "ספר פרויקט",
+    description: "מדריך מפורט לכתיבת ספר הפרויקט לפי התבנית הנדרשת",
+    href: "/book",
+    color: "from-purple-500 to-purple-600"
+  },
+  {
     icon: CheckSquare,
     title: "בודק פרויקט",
     description: "בדוק אם הפרויקט שלך עומד בכל הקריטריונים הנדרשים ל-5 יחידות",
@@ -45,13 +52,6 @@ const features = [
     description: "שאלות תרגול עם משוב מיידי להכנה לבחינה בעל פה",
     href: "/practice",
     color: "from-amber-500 to-amber-600"
-  },
-  {
-    icon: FileText,
-    title: "ספר פרויקט",
-    description: "מדריך מפורט לכתיבת ספר הפרויקט לפי התבנית הנדרשת",
-    href: "/book",
-    color: "from-purple-500 to-purple-600"
   },
   {
     icon: Calculator,
