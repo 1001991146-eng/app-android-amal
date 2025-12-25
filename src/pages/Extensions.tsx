@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { extensions, Extension } from "@/data/extensions";
+import { components, Component } from "@/data/components";
 import { 
   BookOpen, 
   Code2, 
@@ -10,7 +11,8 @@ import {
   ChevronUp,
   Star,
   Zap,
-  Layers
+  Layers,
+  Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +20,7 @@ const categories = [
   { id: "required", name: "הרחבות בסיסיות (סעיף 6)", icon: Star, color: "from-blue-500 to-blue-600" },
   { id: "advanced", name: "נושאים מתקדמים (סעיף 9)", icon: Zap, color: "from-purple-500 to-purple-600" },
   { id: "combined", name: "נושאים משולבים (סעיף 10)", icon: Layers, color: "from-amber-500 to-amber-600" },
+  { id: "components", name: "רכיבים משדרגים", icon: Sparkles, color: "from-emerald-500 to-emerald-600" },
 ];
 
 function ExtensionCard({ extension }: { extension: Extension }) {
@@ -124,10 +127,116 @@ function ExtensionCard({ extension }: { extension: Extension }) {
   );
 }
 
+function ComponentCard({ component }: { component: Component }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  return (
+    <div className="bg-card rounded-xl border border-emerald-500/30 shadow-card overflow-hidden animate-fade-in">
+      {/* Header */}
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="w-full p-5 flex items-center justify-between hover:bg-muted/50 transition-colors"
+      >
+        <div className="flex items-center gap-4">
+          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-500">
+            <Sparkles className="h-5 w-5" />
+          </div>
+          <div className="text-right">
+            <h3 className="text-lg font-bold text-foreground">{component.name}</h3>
+            <p className="text-sm text-muted-foreground">{component.nameEn}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-xs px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-500 font-medium">
+            רכיב משדרג
+          </span>
+          {isExpanded ? (
+            <ChevronUp className="h-5 w-5 text-muted-foreground" />
+          ) : (
+            <ChevronDown className="h-5 w-5 text-muted-foreground" />
+          )}
+        </div>
+      </button>
+
+      {/* Content */}
+      {isExpanded && (
+        <div className="p-5 pt-0 border-t border-border/50 space-y-6 animate-slide-up">
+          {/* Description */}
+          <div>
+            <p className="text-muted-foreground">{component.description}</p>
+          </div>
+
+          {/* Theory */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <BookOpen className="h-5 w-5 text-emerald-500" />
+              <h4 className="font-bold text-foreground">הסבר תאורטי</h4>
+            </div>
+            <div className="bg-muted/50 rounded-lg p-4">
+              <p className="text-foreground whitespace-pre-line leading-relaxed">
+                {component.theory}
+              </p>
+            </div>
+          </div>
+
+          {/* Principles */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <Lightbulb className="h-5 w-5 text-accent" />
+              <h4 className="font-bold text-foreground">עקרונות חשובים</h4>
+            </div>
+            <ul className="space-y-2">
+              {component.principles.map((principle, index) => (
+                <li key={index} className="flex items-start gap-2">
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-accent/20 text-accent flex items-center justify-center text-sm font-bold">
+                    {index + 1}
+                  </span>
+                  <span className="text-foreground">{principle}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Code Example */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <Code2 className="h-5 w-5 text-success" />
+              <h4 className="font-bold text-foreground">דוגמת קוד</h4>
+            </div>
+            <div className="code-block rounded-lg overflow-hidden">
+              <pre className="p-4 overflow-x-auto text-sm leading-relaxed">
+                <code>{component.codeExample}</code>
+              </pre>
+            </div>
+          </div>
+
+          {/* Tips */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <Star className="h-5 w-5 text-warning" />
+              <h4 className="font-bold text-foreground">טיפים</h4>
+            </div>
+            <ul className="space-y-2">
+              {component.tips.map((tip, index) => (
+                <li key={index} className="flex items-start gap-2 text-muted-foreground">
+                  <span className="text-warning">•</span>
+                  {tip}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Extensions() {
   const [activeCategory, setActiveCategory] = useState<string>("required");
 
-  const filteredExtensions = extensions.filter(ext => ext.category === activeCategory);
+  const filteredExtensions = activeCategory !== "components" 
+    ? extensions.filter(ext => ext.category === activeCategory)
+    : [];
 
   return (
     <Layout>
@@ -192,11 +301,22 @@ export default function Extensions() {
                   שווה ערך לנושא מתקדם אחד מסעיף 9.
                 </p>
               )}
+              {activeCategory === "components" && (
+                <p className="text-foreground">
+                  <strong>רכיבים משדרגים:</strong> רכיבים אלו <strong>אינם נחשבים להרחבות</strong> ולא מקנים נקודות,
+                  אך הם משפרים משמעותית את איכות האפליקציה ומומלץ להשתמש בהם.
+                </p>
+              )}
             </div>
 
             {/* Extensions */}
-            {filteredExtensions.map((extension) => (
+            {activeCategory !== "components" && filteredExtensions.map((extension) => (
               <ExtensionCard key={extension.id} extension={extension} />
+            ))}
+
+            {/* Components */}
+            {activeCategory === "components" && components.map((component) => (
+              <ComponentCard key={component.id} component={component} />
             ))}
           </div>
         </div>
