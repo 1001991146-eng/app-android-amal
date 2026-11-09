@@ -1,10 +1,11 @@
-// דרישות הפרויקט לפי המחוון הרשמי של משרד החינוך
-// מחוון בדיקת מתכונת - בחינה בעל פה
+// דרישות הפרויקט לפי המחוון הרשמי של משרד החינוך:
+// "חלופה טלפונים חכמים - הערכה לעבודת גמר (5 יח"ל)" - כולל השינויים שנכנסים לתוקף בתשפ"ז.
+// חשוב: הרשימות והכללים כאן מועתקים מהמחוון. אין להמציא או לשנות ניקוד.
 
 export interface RequirementCategory {
   id: string;
   name: string;
-  weight: number; // משקל באחוזים
+  weight: number;
   description?: string;
   requirements: Requirement[];
 }
@@ -17,259 +18,241 @@ export interface Requirement {
   subItems?: string[];
 }
 
-// מחוון בדיקת מתכונת - בחינה בעל פה (70% מציון המתכונת)
+// אינדקס של נושא הבינה המלאכותית בכל סעיף (משמש לבדיקת חובת ה-AI מתשפ"ז)
+export const AI_INDEX_SECTION_6 = 11; // סעיף 6, נושא 12
+export const AI_INDEX_SECTION_9 = 11; // סעיף 9, נושא 12
+
 export const projectRequirements: RequirementCategory[] = [
   {
-    id: "section-6",
-    name: "סעיף 6 - הרחבות בסיסיות",
-    weight: 0, // משקל נקבע לפי כמות ההרחבות שנבחרו
-    description: "בחר נושא אחד לפחות. כל נושא = נקודה אחת",
+    id: "mandatory",
+    name: "דרישות חובה (סעיפים 1-5)",
+    weight: 0,
+    description: "פרויקט שאינו עומד בכל דרישות 1-5 אינו מתקבל וציונו 0",
+    requirements: [
+      {
+        id: "base",
+        name: "דרישות חובה בפרויקט",
+        description: "כל הסעיפים חייבים להתקיים",
+        subItems: [
+          "1. הפרויקט מהווה אפליקציה לטלפונים חכמים בסביבת אנדרואיד",
+          "2. האפליקציה עובדת בזמן הבחינה, ללא קריסות",
+          "3. הפרויקט כולל לוגיקה מורכבת",
+          "4. אפליקציה אינטראקטיבית עם ממשק גרפי, מספר מסכים / Fragment, הנדסת אנוש ונוחות שימוש",
+          "5. שימוש באירועים: פקדים, מאזינים, מקשים, אירועי מערכת והרשאות זמן-ריצה"
+        ]
+      }
+    ]
+  },
+  {
+    id: "extensions-6",
+    name: "סעיף 6 - דרישות חובה ל-5 יח\"ל",
+    weight: 0,
+    description: "מתשפ\"ז: חובה לבחור לפחות שני נושאים (עד תשפ\"ו - נושא אחד)",
     requirements: [
       {
         id: "ext-6",
-        name: "הרחבות בסיסיות",
-        description: "בחר הרחבה אחת לפחות מהרשימה",
+        name: "נושאי סעיף 6",
+        description: "התלמיד נדרש לדעת ולהסביר לעומק את הבחירה ואת ההקשר לפרויקט",
         subItems: [
-          "AlarmManager + Notification",
-          "JobScheduler",
-          "הורדת נתונים מהאינטרנט (API) והמרה מ-JSON/XML",
-          "Service",
-          "ActivityForResult - 2 מסכים",
-          "ContentProvider (Intent-3 מסכים, 'Share', SharedPreferences או API, שמירה ב-XML)",
-          "אנימציה (Firebase, Firestore, MySQL וכו') בסיס נתונים"
+          "Job Scheduler / Work Manager",
+          "הורדת נתוני מידע (לא תמונות/מוזיקה) מהאינטרנט (API של אתר) ושימוש בהם",
+          "מחלקת Service משמעותית בהקשר לאפליקציה (MediaPlayer אינו עונה על הדרישה)",
+          "מסד נתונים עם יחסים מורכבים (@Relation, @Embedded), DAO עם JOIN / GROUP BY",
+          "כתיבת ContentProvider (מוגדר ב-Manifest כ-provider)",
+          "שימוש ב-Handler / Thread (Task בסביבת Maui)",
+          "הקפצת והאזנה לאירועים מאובייקט (Invoke)",
+          "שימוש ב-DataBinding, Convertor",
+          "שימוש ב-RecyclerView / ObservableCollection + CollectionsView",
+          "ViewPager בשילוב ContentView / Fragment",
+          "שימוש מקיף ב-MVVM בכל הפרויקט",
+          "בינה מלאכותית - הטמעת כלי GenAI קיימים באמצעות API או Agents"
         ]
       }
     ]
   },
   {
-    id: "section-9",
+    id: "storage-7",
+    name: "סעיף 7 - אחסון וטיפול בנתונים",
+    weight: 0,
+    description: "חובה כתיבה וקריאה. SharedPreferences / קובץ טקסט / XML / JSON אינם נחשבים בסיס נתונים",
+    requirements: [
+      {
+        id: "db",
+        name: "בסיס נתונים",
+        description: "SQLite, MySQL, Firebase, Firestore וכדומה",
+        subItems: [
+          "שימוש בבסיס נתונים לכתיבה וקריאה (הוספה, עדכון, מחיקה, שליפה)",
+          "בסיס נתונים מרוחק (Firebase RealTime / Firestore / MySQL) כולל עדכון סינכרוני - נחשב גם כשני נושאים מסעיף 10"
+        ]
+      }
+    ]
+  },
+  {
+    id: "extensions-9",
     name: "סעיף 9 - נושאים מתקדמים",
     weight: 0,
-    description: "בחר נושא אחד לפחות. כל נושא = נקודה אחת",
+    description: "חובה לפחות נושא אחד. לפי סעיף 8: שלושה נושאים, או שניים + שני נושאים מסעיף 10",
     requirements: [
       {
         id: "ext-9",
-        name: "נושאים מתקדמים",
-        description: "בחר נושא מתקדם אחד לפחות מהרשימה",
+        name: "נושאי סעיף 9",
+        description: "בחר את הנושאים שמימשת",
         subItems: [
-          "חיישנים (Sensors) - שימוש ב-3 חיישנים לפחות או 1 עם API או 'גלילה', התרעות",
-          "10 פריימים (כל שניה) עם 6 סוגי אייקונים לפחות (2) ומשתמש בהנפשה",
-          "SurfaceView או ירושה ממחלקת View (1) לפחות 10 פריימים (כל שניה) לפחות 9 סוגי אייקונים",
-          "GoogleMaps עם מיקום נוכחי, טיפול בהרשאות, 'Threads', Bluetooth, NFC",
-          "Fragment, 'פעולה עם תמונות, אנימציות וגלילה', SurfaceView, 'ירושה'",
-          "Threads עם רשת או לוגיקה",
-          "API בצד שרת (Firebase, MySQL) - קבלת נתונים והצגתם"
+          "SurfaceView",
+          "AlarmManager + Notification (עבר לסעיף 9 בתשפ\"ז)",
+          "ירושה ממחלקת IDrawable / View לצורך מימוש גרפי",
+          "GoogleMaps (או שירות דומה) ושימוש בנתוני מיקום",
+          "ContentView / Fragments",
+          "מאזיני מיקום / תנועה",
+          "Bluetooth",
+          "NFC",
+          "רשתות מחשבים",
+          "פיתוח API בצד שרת (בכל שפת תכנות)",
+          "בינה אנושית - מנוע / מודל אלגוריתמי מורכב (ניווט, משחק מול הטלפון שאינו רנדומלי)",
+          "בינה מלאכותית - מנוע למידת מכונה: איסוף נתונים, אימון והטמעה לחיזוי",
+          "כל טכנולוגיה חדשה (עיבוד תמונה, זיהוי קול וכו')",
+          "אפליקציית רב-משתתפים: פעולה של משתמש משפיעה בזמן אמת על משתמשים אחרים / ניהול קונפליקטים במשאב משותף"
         ]
       }
     ]
   },
   {
-    id: "section-10",
+    id: "extensions-10",
     name: "סעיף 10 - נושאים משולבים",
     weight: 0,
-    description: "כל 2 נושאים = נקודה אחת (שווה ערך לנושא מתקדם)",
+    description: "משמשים לאפשרות (2) בסעיף 8: שני נושאים מסעיף 9 + שני נושאים (או יותר) מסעיף 10",
     requirements: [
       {
         id: "ext-10",
-        name: "נושאים משולבים",
-        description: "בחר נושאים משולבים (כל 2 = נקודה)",
+        name: "נושאי סעיף 10",
+        description: "בחר את הנושאים שמימשת",
         subItems: [
-          "Broadcast Receiver",
-          "Share Preference",
+          "Messaging / BroadcastReceiver",
+          "SharedPreferences",
           "Camera & Gallery",
-          "Async Task",
-          "Handler",
+          "הורשה ממחלקת AsyncTask",
           "Microphone",
           "GPS",
-          "CountDown Timer",
+          "CountDownTimer",
           "TextToSpeech",
-          "SpeechToText"
+          "SpeechToText",
+          "Sensors (עבר לסעיף 10 בתשפ\"ז)",
+          "Calendar with filter logic",
+          "שימוש ב-ContentProvider",
+          "שימוש ב-ActivityResultContract (עבר לסעיף 10 בתשפ\"ז)"
         ]
       }
     ]
   },
   {
-    id: "complexity",
-    name: "מורכבות הפרויקט",
-    weight: 25,
-    description: "מורכבות כללית של הפרויקט והקוד",
+    id: "measures",
+    name: "מדדי הערכה (סעיפים 11-17)",
+    weight: 0,
+    description: "משפיעים על רמת הפרויקט והציון - לא תנאי סף",
     requirements: [
       {
-        id: "objects",
-        name: "עצמים ומחלקות",
-        description: "שימוש בתכנות מונחה עצמים",
+        id: "measure",
+        name: "מדדי הערכה",
+        description: "סמן מה מתקיים בפרויקט שלך",
         subItems: [
-          "לפחות 2 מחלקות עצמים",
-          "תכונות (משתנים פרטיים)",
-          "פעולה בונה (Constructor)",
-          "פעולות Getters ו-Setters",
-          "פעולות נוספות (לוגיקה)"
+          "11. רמת קושי, מקוריות ומורכבות הקוד (קוד דומה בין תלמידים מוריד מהציון)",
+          "12. תכנות מונחה עצמים: חלוקה למחלקות, הפרדת לוגיקה ותצוגה, הכלה והורשה",
+          "13. שימוש בתפריטים ו/או תיבות דו-שיח",
+          "14. מוסכמות וסגנון תכנות, חלוקה לפעולות, קריאות ותיעוד",
+          "15. מבני נתונים מתאימים - מערך, ArrayList, עץ, גרף, Set, Dictionary",
+          "16. שימוש בתכני החובה באופן רלוונטי לנושא הפרויקט",
+          "17. הפרויקט אינו דומה באופן מהותי לפרויקט אחר בכיתה"
         ]
-      },
-      {
-        id: "data-structures",
-        name: "מבני נתונים",
-        description: "שימוש במבני נתונים",
-        subItems: [
-          "ArrayList או מערך",
-          "הוספה, הסרה, חיפוש",
-          "מעבר על הרשימה"
-        ]
-      },
-      {
-        id: "database",
-        name: "מסד נתונים (SQLite / Firebase)",
-        description: "אחסון קבוע של נתונים - ניתן לבחור SQLite או Firebase",
-        subItems: [
-          "הוספת נתונים (Insert)",
-          "עדכון נתונים (Update)",
-          "מחיקת נתונים (Delete)",
-          "שליפת נתונים (Select/Read)"
-        ]
-      }
-    ]
-  },
-  {
-    id: "activities",
-    name: "מסכים וממשק",
-    weight: 10,
-    description: "ריבוי מסכים וממשק משתמש",
-    requirements: [
-      {
-        id: "multi-screen",
-        name: "ריבוי מסכים",
-        description: "לפחות 3 מסכים עם ניווט",
-        subItems: [
-          "לפחות 3 Activities שונים",
-          "מעבר עם Intent",
-          "העברת נתונים בין מסכים"
-        ]
-      },
-      {
-        id: "ui",
-        name: "ממשק משתמש",
-        description: "רכיבי UI מגוונים",
-        subItems: [
-          "רכיבי קלט ופלט",
-          "רשימות (ListView/RecyclerView)",
-          "עיצוב נאה"
-        ]
-      }
-    ]
-  },
-  {
-    id: "oral-exam",
-    name: "בחינה בעל פה",
-    weight: 35,
-    description: "הדגמה, הסברים ומענה על שאלות",
-    requirements: [
-      {
-        id: "demo",
-        name: "הדגמת האפליקציה",
-        description: "הצגה של כל הפונקציונליות"
-      },
-      {
-        id: "code-explanation",
-        name: "הסבר קוד",
-        description: "יכולת להסביר את הקוד"
-      },
-      {
-        id: "questions",
-        name: "מענה על שאלות",
-        description: "יכולת לענות על שאלות הבוחן"
       }
     ]
   }
 ];
 
-// חישוב נקודות הרחבות
-export const calculateExtensionPoints = (checkedItems: Set<string>): {
-  section6: number;
-  section9: number;
-  section10: number;
-  total: number;
-} => {
-  // סעיף 6 - כל הרחבה = נקודה
-  const ext6Items = projectRequirements.find(c => c.id === "section-6")
-    ?.requirements[0].subItems || [];
-  const section6 = ext6Items.filter((_, i) => checkedItems.has(`ext-6-${i}`)).length;
+const countChecked = (prefix: string, length: number, checked: Set<string>) =>
+  Array.from({ length }, (_, i) => `${prefix}-${i}`).filter(id => checked.has(id)).length;
 
-  // סעיף 9 - כל נושא = נקודה
-  const ext9Items = projectRequirements.find(c => c.id === "section-9")
-    ?.requirements[0].subItems || [];
-  const section9 = ext9Items.filter((_, i) => checkedItems.has(`ext-9-${i}`)).length;
+const itemsOf = (catId: string) =>
+  projectRequirements.find(c => c.id === catId)?.requirements[0].subItems ?? [];
 
-  // סעיף 10 - כל 2 נושאים = נקודה
-  const ext10Items = projectRequirements.find(c => c.id === "section-10")
-    ?.requirements[0].subItems || [];
-  const section10Count = ext10Items.filter((_, i) => checkedItems.has(`ext-10-${i}`)).length;
-  const section10 = Math.floor(section10Count / 2);
-
-  return {
-    section6,
-    section9,
-    section10,
-    total: section6 + section9 + section10
-  };
+/**
+ * ספירת הנושאים לפי כללי המחוון (תשפ"ז):
+ * - בסיס נתונים מרוחק סינכרוני נחשב בנוסף כשני נושאים מסעיף 10.
+ * - מימוש נושאים מסעיף 6 מעבר למינימום הנדרש (2) נחשב בנוסף כשני נושאים מסעיף 10.
+ */
+export const calculateExtensionPoints = (checked: Set<string>) => {
+  const section6 = countChecked("ext-6", itemsOf("extensions-6").length, checked);
+  const section9 = countChecked("ext-9", itemsOf("extensions-9").length, checked);
+  const section10Raw = countChecked("ext-10", itemsOf("extensions-10").length, checked);
+  const remoteDbBonus = checked.has("db-1") ? 2 : 0;
+  const extra6Bonus = section6 > 2 ? 2 : 0;
+  const section10 = section10Raw + remoteDbBonus + extra6Bonus;
+  return { section6, section9, section10, section10Raw, total: section6 + section9 + section10 };
 };
 
-// בדיקה האם עומד בדרישות 5 יחל"מ
-export const checkProjectValidity = (checkedItems: Set<string>): {
-  isValid: boolean;
-  extensionPoints: number;
-  missingRequirements: string[];
-} => {
+/** בדיקה האם הפרויקט עומד בדרישות 5 יח"ל לפי המחוון של תשפ"ז */
+export const checkProjectValidity = (checked: Set<string>) => {
   const missingRequirements: string[] = [];
-  const extensions = calculateExtensionPoints(checkedItems);
+  const ext = calculateExtensionPoints(checked);
 
-  // בדיקת הרחבות - נדרש לפחות 5 נקודות
-  if (extensions.total < 5) {
-    missingRequirements.push(`נדרשות עוד ${5 - extensions.total} נקודות הרחבות (יש: ${extensions.total})`);
+  const mandatoryCount = countChecked("base", 5, checked);
+  if (mandatoryCount < 5) {
+    missingRequirements.push("לא כל דרישות החובה 1-5 מתקיימות - הפרויקט לא יתקבל");
   }
-
-  // בדיקת דרישות בסיסיות
-  const basicCategories = ["complexity", "activities"];
-  basicCategories.forEach(catId => {
-    const category = projectRequirements.find(c => c.id === catId);
-    if (category) {
-      const allItems = category.requirements.flatMap(req =>
-        req.subItems ? req.subItems.map((_, i) => `${req.id}-${i}`) : [req.id]
-      );
-      const checkedCount = allItems.filter(id => checkedItems.has(id)).length;
-      if (checkedCount < allItems.length * 0.5) {
-        missingRequirements.push(`יש להשלים: ${category.name}`);
-      }
-    }
-  });
+  if (ext.section6 < 2) {
+    missingRequirements.push(`סעיף 6: נדרשים לפחות 2 נושאים (נבחרו: ${ext.section6})`);
+  }
+  if (!checked.has("db-0") && !checked.has("db-1")) {
+    missingRequirements.push("סעיף 7: נדרש שימוש בבסיס נתונים לכתיבה וקריאה");
+  }
+  if (ext.section9 < 1) {
+    missingRequirements.push("סעיף 9: נדרש לפחות נושא אחד");
+  }
+  const option1 = ext.section9 >= 3;
+  const option2 = ext.section9 >= 2 && ext.section10 >= 2;
+  if (!option1 && !option2) {
+    missingRequirements.push(
+      `סעיף 8: נדרשים 3 נושאים מסעיף 9, או 2 מסעיף 9 + 2 מסעיף 10 (יש: ${ext.section9} מסעיף 9, ${ext.section10} מסעיף 10)`
+    );
+  }
+  const usesAI = checked.has(`ext-6-${AI_INDEX_SECTION_6}`) || checked.has(`ext-9-${AI_INDEX_SECTION_9}`);
+  if (!usesAI) {
+    missingRequirements.push("מתשפ\"ז חובה שימוש בבינה מלאכותית (סעיף 6 נושא 12 או סעיף 9 נושא 12)");
+  }
 
   return {
     isValid: missingRequirements.length === 0,
-    extensionPoints: extensions.total,
+    extensionPoints: ext.total,
+    extensions: ext,
     missingRequirements
   };
 };
 
-// חישוב אחוז השלמה כללי
-export const getTotalProgress = (checkedItems: Set<string>): number => {
-  let totalItems = 0;
-  let checkedCount = 0;
-
-  projectRequirements.forEach(category => {
-    category.requirements.forEach(req => {
-      if (req.subItems) {
-        totalItems += req.subItems.length;
-        req.subItems.forEach((_, i) => {
-          if (checkedItems.has(`${req.id}-${i}`)) checkedCount++;
-        });
-      } else {
-        totalItems += 1;
-        if (checkedItems.has(req.id)) checkedCount++;
-      }
-    });
-  });
-
-  return Math.round((checkedCount / totalItems) * 100);
+/** אחוז הסעיפים שסומנו מכלל הרשימה (מדד התקדמות בלבד, לא ציון) */
+export const getTotalProgress = (checked: Set<string>): number => {
+  let total = 0;
+  let done = 0;
+  projectRequirements.forEach(cat =>
+    cat.requirements.forEach(req => {
+      (req.subItems ?? []).forEach((_, i) => {
+        total++;
+        if (checked.has(`${req.id}-${i}`)) done++;
+      });
+    })
+  );
+  return total ? Math.round((done / total) * 100) : 0;
 };
 
-// לתאימות אחורה
 export const getTotalPoints = getTotalProgress;
+
+// חלק ב' של המחוון - חלוקת הניקוד בבחינת הפרויקט (בע"פ)
+export const projectExamWeights = [
+  { name: "הצגה ושליטה בפרויקט", weight: 10 },
+  { name: "פרויקט עובד - תהליך שלם מקצה לקצה", weight: 10 },
+  { name: "אחסון וטיפול בבסיס נתונים", weight: 10 },
+  { name: "שימוש בנושאים מסעיף 6", weight: 10 },
+  { name: "שליטה בקוד", weight: 25 },
+  { name: "שליטה בחומר התיאורטי", weight: 15 },
+  { name: "הרחבה ראשונה", weight: 10 },
+  { name: "הרחבה שנייה", weight: 10 },
+  { name: "הרחבות נוספות / בונוס", weight: 10 }
+];

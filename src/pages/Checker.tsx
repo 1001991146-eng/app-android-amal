@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { projectRequirements, checkProjectValidity, getTotalProgress } from "@/data/projectRequirements";
+import { projectRequirements, checkProjectValidity, getTotalProgress, projectExamWeights } from "@/data/projectRequirements";
 import { 
   CheckCircle2, 
   Circle, 
@@ -118,7 +118,9 @@ export default function Checker() {
               </div>
               <div className="flex items-center justify-center gap-2 text-muted-foreground">
                 <Sparkles className="h-4 w-4" />
-                <span>{validation.extensionPoints} נקודות הרחבות (נדרש: 5)</span>
+                <span>
+                  סעיף 6: {validation.extensions.section6} | סעיף 9: {validation.extensions.section9} | סעיף 10: {validation.extensions.section10}
+                </span>
               </div>
             </div>
           </div>
@@ -287,13 +289,25 @@ export default function Checker() {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="bg-muted/50 rounded-xl p-6">
-              <h3 className="font-bold text-foreground mb-4">איך מחשבים נקודות הרחבות?</h3>
+              <h3 className="font-bold text-foreground mb-4">כללי עמידה ברמת 5 יח"ל - מחוון תשפ"ז</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>• <strong>סעיף 6 (הרחבות בסיסיות):</strong> כל הרחבה = נקודה אחת</li>
-                <li>• <strong>סעיף 9 (נושאים מתקדמים):</strong> כל נושא = נקודה אחת</li>
-                <li>• <strong>סעיף 10 (נושאים משולבים):</strong> כל 2 נושאים = נקודה אחת</li>
-                <li className="pt-2 text-foreground">• <strong>נדרש:</strong> סה"כ 5 נקודות הרחבות לעמידה בדרישות 5 יחל"מ</li>
+                <li>• <strong>סעיפים 1-5:</strong> חובה. בלעדיהם הפרויקט אינו מתקבל (ציון 0)</li>
+                <li>• <strong>סעיף 6:</strong> לפחות 2 נושאים (עד תשפ"ו - נושא אחד). נושאים מעבר לכך נחשבים גם כשני נושאים מסעיף 10</li>
+                <li>• <strong>סעיף 7:</strong> בסיס נתונים לכתיבה וקריאה. בסיס נתונים מרוחק סינכרוני נחשב גם כשני נושאים מסעיף 10</li>
+                <li>• <strong>סעיף 8:</strong> 3 נושאים מסעיף 9, או 2 נושאים מסעיף 9 + 2 נושאים מסעיף 10</li>
+                <li>• <strong>בינה מלאכותית:</strong> מתשפ"ז חובה, דרך סעיף 6 (GenAI) או סעיף 9 (למידת מכונה)</li>
+                <li>• <strong>תיעוד:</strong> כל קוד שנלקח מאתר או נוצר ע"י AI חייב להיות מסומן בבירור בתיעוד</li>
+                <li>• <strong>בונוס:</strong> עד 10 נקודות על תוספות מעבר לתכנית (ציון מקסימלי 100)</li>
               </ul>
+              <h3 className="font-bold text-foreground mt-6 mb-3">חלק ב' - חלוקת הניקוד בבחינת הפרויקט</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                {projectExamWeights.map(w => (
+                  <div key={w.name} className="bg-background rounded-lg p-3">
+                    <div className="font-medium">{w.name}</div>
+                    <div className="text-muted-foreground">{w.weight}%</div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>

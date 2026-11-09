@@ -105,25 +105,18 @@ const bookRequirements: BookCategory[] = [
   },
   {
     id: "architecture",
-    name: "מבנה/ארכיטקטורה",
-    weight: 10,
+    name: "מבנה/ארכיטקטורה של הפרויקט",
+    weight: 15,
     requirements: [
       {
         id: "uml",
         name: "תרשימי מחלקות (UML)",
-        description: "הצגת תרשים מחלקות, עצי מחלקות, הסבר תמציתי על הפעולות העיקריות"
-      }
-    ]
-  },
-  {
-    id: "flowcharts",
-    name: "תרשימי זרימה",
-    weight: 15,
-    requirements: [
+        description: "הסבר תמציתי על הפעולות העיקריות עם קטעי קוד, תרשים מחלקות, עצי מחלקות והורשה/הכלה"
+      },
       {
         id: "flow",
-        name: "תרשימי זרימה רלוונטיים",
-        description: "מבנה הפרויקט (הכלה/הורשה), ארגון הקבצים, תרשימי זרימה רלוונטיים"
+        name: "ארגון קבצים ותרשימי זרימה",
+        description: "ארגון הקבצים בפרויקט ותרשימי זרימה שמבהירים את המבנה"
       }
     ]
   },
@@ -164,6 +157,28 @@ const bookRequirements: BookCategory[] = [
         id: "personal",
         name: "רפלקציה מעמיקה",
         description: "רפלקציה מעמיקה על תהליך העבודה: מה למדת, מהן החוזקות, בדיקות האפליקציה והממשק הגרפי (לא משפט תודה)"
+      }
+    ]
+  },
+  {
+    id: "bibliography",
+    name: "ביבליוגרפיה ונספחים",
+    weight: 10,
+    requirements: [
+      {
+        id: "biblio",
+        name: "ביבליוגרפיה לפי APA",
+        description: "כל מקורות המידע, כולל קישורים ציבוריים לשיחות עם מנועי בינה מלאכותית שמהם יובא קוד",
+        subItems: [
+          "קוד משמעותי מאתר (GitHub, StackOverflow) או מ-AI - קישור ציבורי פעיל בביבליוגרפיה",
+          "מספר המקור מצוין בתיעוד הקוד עצמו (Javadoc)",
+          "קוד מאתרים / AI מסומן בצורה ברורה ומודגשת בספר"
+        ]
+      },
+      {
+        id: "appendix",
+        name: "נספחים",
+        description: "תדפיס קוד המחלקות כטקסט (לא כתמונה!) כולל הערות Javadoc"
       }
     ]
   }
@@ -418,11 +433,7 @@ export default function BookChecker() {
                   <div className="text-muted-foreground">10%</div>
                 </div>
                 <div className="bg-background rounded-lg p-3">
-                  <div className="font-medium">ארכיטקטורה (UML)</div>
-                  <div className="text-muted-foreground">10%</div>
-                </div>
-                <div className="bg-background rounded-lg p-3">
-                  <div className="font-medium">תרשימי זרימה</div>
+                  <div className="font-medium">מבנה / ארכיטקטורה</div>
                   <div className="text-muted-foreground">15%</div>
                 </div>
                 <div className="bg-background rounded-lg p-3">
@@ -436,6 +447,14 @@ export default function BookChecker() {
                 <div className="bg-background rounded-lg p-3">
                   <div className="font-medium">סיכום אישי</div>
                   <div className="text-muted-foreground">5%</div>
+                </div>
+                <div className="bg-background rounded-lg p-3">
+                  <div className="font-medium">ביבליוגרפיה ונספחים</div>
+                  <div className="text-muted-foreground">10%</div>
+                </div>
+                <div className="bg-background rounded-lg p-3">
+                  <div className="font-medium">בונוס</div>
+                  <div className="text-muted-foreground">עד 10%</div>
                 </div>
               </div>
             </div>
