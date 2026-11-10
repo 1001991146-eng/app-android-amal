@@ -306,20 +306,20 @@ export default function Extensions() {
             <div className="bg-muted/50 rounded-xl p-6 mb-8">
               {activeCategory === "required" && (
                 <p className="text-foreground">
-                  <strong>סעיף 6:</strong> יש לבחור <strong>נושא אחד</strong> מהרשימה הבאה. 
-                  כל נושא שווה נקודה אחת לציון ההרחבות.
+                  <strong>סעיף 6:</strong> מתשפ"ז יש לבחור <strong>לפחות שני נושאים</strong> (עד תשפ"ו - נושא אחד).
+                  בתשפ"ז AlarmManager עובר לסעיף 9, ActivityResultContract ו-ContentProvider לסעיף 10, ויצירת אנימציה מבוטלת.
+                  מתשפ"ז חובה שימוש בבינה מלאכותית (סעיף 6 או 9).
                 </p>
               )}
               {activeCategory === "advanced" && (
                 <p className="text-foreground">
-                  <strong>סעיף 9:</strong> נושאים מתקדמים. יש לבחור <strong>נושא אחד</strong> מהרשימה. 
-                  כל נושא שווה נקודה אחת לציון ההרחבות.
+                  <strong>סעיף 9:</strong> נושאים מתקדמים. חובה לפחות נושא אחד. לפי סעיף 8 נדרשים <strong>3 נושאים</strong> מסעיף 9,
+                  או <strong>2 נושאים</strong> מסעיף 9 + 2 נושאים מסעיף 10. בתשפ"ז חיישנים עוברים לסעיף 10.
                 </p>
               )}
               {activeCategory === "combined" && (
                 <p className="text-foreground">
-                  <strong>סעיף 10:</strong> נושאים משולבים. <strong>שילוב של 2 נושאים</strong> מרשימה זו 
-                  שווה ערך לנושא מתקדם אחד מסעיף 9.
+                  <strong>סעיף 10:</strong> נושאים משולבים. משמשים לאפשרות השנייה בסעיף 8: <strong>2 נושאים</strong> מסעיף 9 + <strong>2 נושאים או יותר</strong> מסעיף 10.
                 </p>
               )}
               {activeCategory === "components" && (
