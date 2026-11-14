@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, BookOpen, CheckSquare, GraduationCap, FileText, Calculator, Brain } from "lucide-react";
+import { Menu, X, BookOpen, CheckSquare, GraduationCap, FileText, Calculator, Brain, LogIn, LogOut, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import schoolLogo from "@/assets/school-logo.png";
+import { useAuth } from "@/hooks/useAuth";
 
 const navigation = [
   { name: "הרחבות", href: "/extensions", icon: GraduationCap },
@@ -18,6 +19,11 @@ const navigation = [
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { session, loading, signOut } = useAuth();
+  const accountLink = session
+    ? { name: "לוח הבקרה שלי", href: "/dashboard", icon: LayoutDashboard }
+    : { name: "התחברות/הרשמה", href: "/auth", icon: LogIn };
+  const links = [...navigation, accountLink];
 
   return (
     <>
@@ -44,19 +50,19 @@ export function Header() {
             <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-primary shadow-soft group-hover:shadow-card transition-shadow duration-300">
               <GraduationCap className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold text-foreground">מנטור אנדרואיד</span>
+            <span className="text-lg font-bold text-foreground whitespace-nowrap">מנטור אנדרואיד</span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-1">
-            {navigation.map((item) => {
+          <div className="hidden xl:flex items-center gap-1">
+            {links.map((item) => {
               const isActive = location.pathname === item.href;
               return (
                 <Link
                   key={item.name}
                   to={item.href}
                   className={cn(
-                    "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                    "flex items-center gap-1.5 px-2 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all duration-200",
                     isActive
                       ? "bg-primary text-primary-foreground shadow-soft"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -67,13 +73,20 @@ export function Header() {
                 </Link>
               );
             })}
+            {session && (
+              <Button variant="ghost" size="icon" onClick={() => void signOut()} aria-label="התנתקות" title="התנתקות" disabled={loading}>
+                <LogOut className="h-4 w-4" />
+              </Button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden"
+            className="xl:hidden"
+            aria-label={mobileMenuOpen ? "סגירת תפריט" : "פתיחת תפריט"}
+            aria-expanded={mobileMenuOpen}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -82,9 +95,9 @@ export function Header() {
 
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-border bg-background animate-slide-up">
+          <div className="xl:hidden border-t border-border bg-background animate-slide-up">
             <div className="container mx-auto px-4 py-4 space-y-2">
-              {navigation.map((item) => {
+              {links.map((item) => {
                 const isActive = location.pathname === item.href;
                 return (
                   <Link
@@ -103,6 +116,12 @@ export function Header() {
                   </Link>
                 );
               })}
+              {session && (
+                <Button variant="ghost" className="w-full justify-start gap-3" onClick={() => { setMobileMenuOpen(false); void signOut(); }} disabled={loading}>
+                  <LogOut className="h-5 w-5" />
+                  התנתקות
+                </Button>
+              )}
             </div>
           </div>
         )}

@@ -209,10 +209,10 @@ const TeacherDashboard = () => {
                         variant="secondary"
                         className={
                           s.percent === 100
-                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400"
+                            ? "bg-success/10 text-success"
                             : s.stageIndex <= 1
-                              ? "bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-400"
-                              : "bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400"
+                              ? "bg-destructive/10 text-destructive"
+                              : "bg-warning/10 text-warning"
                         }
                       >
                         {s.percent === 100 ? "הושלם 🎉" : s.stage}
