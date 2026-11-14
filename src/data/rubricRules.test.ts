@@ -1,4 +1,5 @@
-import { describe, it, expect } from "vitest";
+// @ts-nocheck
+import { describe, it, expect } from "bun:test";
 import { evaluateSpec, ProjectSpec } from "./rubricRules";
 
 const base: ProjectSpec = { dbType: "SQLite", aiPath: "none", aiCommitment: false, section6: ["a", "b"], section9: ["x", "y", "z"], section10: [] };
