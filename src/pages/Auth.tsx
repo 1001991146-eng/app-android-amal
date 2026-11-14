@@ -76,7 +76,13 @@ const Auth = () => {
         title: "ההרשמה נכשלה",
         description: error.message.includes("already")
           ? "כבר קיים חשבון עם הדוא\"ל הזה — נסו להתחבר"
-          : "אירעה שגיאה, נסו שוב",
+          : /weak|easy to guess|pwned/i.test(error.message)
+            ? "הסיסמה פשוטה או נפוצה מדי — בחרו סיסמה מורכבת יותר (שלבו אותיות ומספרים)"
+            : /at least|characters/i.test(error.message)
+              ? "הסיסמה קצרה מדי — נדרשים לפחות 6 תווים"
+              : /email/i.test(error.message)
+                ? "כתובת הדוא\"ל אינה תקינה"
+                : "אירעה שגיאה, נסו שוב",
         variant: "destructive",
       });
       return;
@@ -193,6 +199,9 @@ const Auth = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       dir="ltr"
                     />
+                    <p className="text-xs text-muted-foreground">
+                      לפחות 6 תווים. סיסמאות פשוטות או נפוצות (כמו 123456) נחסמות — מומלץ לשלב אותיות ומספרים.
+                    </p>
                   </div>
                   <div className="space-y-3">
                     <Label>אני נרשם/ת בתור</Label>
