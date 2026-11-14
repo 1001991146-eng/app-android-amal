@@ -36,13 +36,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
       setSession(newSession);
       if (newSession?.user) {
+        setLoading(true);
         // defer to avoid supabase deadlock inside the callback
-        setTimeout(() => loadProfile(newSession.user.id), 0);
+        setTimeout(() => { void loadProfile(newSession.user.id).finally(() => setLoading(false)); }, 0);
       } else {
         setRole(null);
         setFullName("");
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     supabase.auth.getSession().then(({ data: { session: existing } }) => {

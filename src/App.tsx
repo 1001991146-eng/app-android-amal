@@ -12,6 +12,9 @@ import BookChecker from "./pages/BookChecker";
 import GradeCalculator from "./pages/GradeCalculator";
 import AI from "./pages/AI";
 import NotFound from "./pages/NotFound";
+import Auth from "./pages/Auth";
+import Dashboard from "./pages/Dashboard";
+import { AuthProvider } from "./hooks/useAuth";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +24,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <AuthProvider>
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/extensions" element={<Extensions />} />
@@ -30,9 +34,12 @@ const App = () => (
           <Route path="/book" element={<Book />} />
           <Route path="/grade-calculator" element={<GradeCalculator />} />
           <Route path="/ai" element={<AI />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
