@@ -20,7 +20,9 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { MILESTONES, MilestoneStatus, currentStage, progressPercent } from "@/data/milestones";
-import { Loader2, Search, Users } from "lucide-react";
+import { Loader2, Search, Users, Sparkles, AlertTriangle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { aiPathLabel, evaluateSpec, specFromRow } from "@/data/rubricRules";
 
 interface StudentRow {
   id: string;
@@ -30,6 +32,9 @@ interface StudentRow {
   percent: number;
   stage: string;
   stageIndex: number;
+  aiPath: string;
+  usesAi: boolean;
+  meetsRubric: boolean;
 }
 
 const TeacherDashboard = () => {
@@ -37,6 +42,7 @@ const TeacherDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [stageFilter, setStageFilter] = useState<string>("all");
+  const [quickFilter, setQuickFilter] = useState<"all" | "missing" | "ai">("all");
 
   useEffect(() => {
     const load = async () => {
@@ -45,6 +51,8 @@ const TeacherDashboard = () => {
         supabase.from("milestones").select("user_id, milestone_key, status"),
         supabase.from("user_roles").select("user_id, role"),
       ]);
+      const { data: specs } = await supabase.from("project_specs").select("*");
+      const specByUser = new Map((specs ?? []).map((r) => [r.user_id, r]));
 
       // מציגים רק תלמידים (לא מורים)
       const teacherIds = new Set(
@@ -62,7 +70,12 @@ const TeacherDashboard = () => {
         .map((p) => {
           const statuses = byUser[p.id] ?? {};
           const stage = currentStage(statuses);
+          const row = specByUser.get(p.id);
+          const evaluation = evaluateSpec(specFromRow(row));
           return {
+            aiPath: aiPathLabel(row?.ai_path),
+            usesAi: evaluation.usesAi,
+            meetsRubric: evaluation.isValid,
             id: p.id,
             fullName: p.full_name || "ללא שם",
             topic: p.project_topic,
@@ -98,9 +111,11 @@ const TeacherDashboard = () => {
       const matchesSearch =
         !q || s.fullName.includes(q) || (s.topic ?? "").includes(q);
       const matchesStage = stageFilter === "all" || s.stage === stageFilter;
-      return matchesSearch && matchesStage;
+      const matchesQuick =
+        quickFilter === "all" || (quickFilter === "missing" ? !s.meetsRubric : s.usesAi);
+      return matchesSearch && matchesStage && matchesQuick;
     });
-  }, [students, search, stageFilter]);
+  }, [students, search, stageFilter, quickFilter]);
 
   if (loading) {
     return (
@@ -147,6 +162,19 @@ const TeacherDashboard = () => {
           <CardDescription>מיון אוטומטי: התלמידים שבשלבים המוקדמים ביותר מופיעים ראשונים</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" variant={quickFilter === "all" ? "default" : "outline"} onClick={() => setQuickFilter("all")}>
+              כל התלמידים
+            </Button>
+            <Button size="sm" variant={quickFilter === "missing" ? "default" : "outline"} className="gap-1" onClick={() => setQuickFilter("missing")}>
+              <AlertTriangle className="h-4 w-4" />
+              טרם עומדים בדרישות המחוון ({students.filter((s) => !s.meetsRubric).length})
+            </Button>
+            <Button size="sm" variant={quickFilter === "ai" ? "default" : "outline"} className="gap-1" onClick={() => setQuickFilter("ai")}>
+              <Sparkles className="h-4 w-4" />
+              משלבים AI בפרויקט ({students.filter((s) => s.usesAi).length})
+            </Button>
+          </div>
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -180,12 +208,14 @@ const TeacherDashboard = () => {
                   <TableHead className="text-right">נושא הפרויקט</TableHead>
                   <TableHead className="text-right">התקדמות</TableHead>
                   <TableHead className="text-right">השלב הנוכחי</TableHead>
+                  <TableHead className="text-right">נתיב AI</TableHead>
+                  <TableHead className="text-center">עומד בדרישות המחוון</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filtered.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
                       לא נמצאו תלמידים התואמים את החיפוש
                     </TableCell>
                   </TableRow>
@@ -217,6 +247,15 @@ const TeacherDashboard = () => {
                       >
                         {s.percent === 100 ? "הושלם 🎉" : s.stage}
                       </Badge>
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{s.aiPath}</TableCell>
+                    <TableCell className="text-center">
+                      <span
+                        aria-label={s.meetsRubric ? "עומד" : "לא עומד"}
+                        className={s.meetsRubric ? "text-success font-bold text-lg" : "text-destructive font-bold text-lg"}
+                      >
+                        {s.meetsRubric ? "V" : "X"}
+                      </span>
                     </TableCell>
                   </TableRow>
                 ))}

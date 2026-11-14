@@ -82,6 +82,47 @@ export type Database = {
         }
         Relationships: []
       }
+      project_specs: {
+        Row: {
+          ai_commitment: boolean
+          ai_path: string
+          db_type: string | null
+          section10: string[]
+          section6: string[]
+          section9: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_commitment?: boolean
+          ai_path?: string
+          db_type?: string | null
+          section10?: string[]
+          section6?: string[]
+          section9?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_commitment?: boolean
+          ai_path?: string
+          db_type?: string | null
+          section10?: string[]
+          section6?: string[]
+          section9?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_specs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string

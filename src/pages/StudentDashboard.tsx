@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { MILESTONES, MilestoneStatus, STATUS_LABELS, progressPercent } from "@/data/milestones";
 import { CheckCircle2, Circle, Loader2, Save, Timer } from "lucide-react";
 import { cn } from "@/lib/utils";
+import ProjectSpecForm from "@/components/dashboard/ProjectSpecForm";
 
 const STATUS_ORDER: MilestoneStatus[] = ["not_started", "in_progress", "done"];
 
@@ -93,7 +94,7 @@ const StudentDashboard = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-10 max-w-3xl space-y-8">
+    <div className="container mx-auto px-4 py-10 max-w-4xl space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-foreground">שלום, {fullName || "תלמיד/ה"} 👋</h1>
         <p className="text-muted-foreground mt-1">כאן עוקבים אחר התקדמות פרויקט הגמר שלך</p>
@@ -130,6 +131,8 @@ const StudentDashboard = () => {
           <p className="text-sm text-muted-foreground text-left" dir="ltr">{percent}%</p>
         </CardContent>
       </Card>
+
+      {user && <ProjectSpecForm userId={user.id} />}
 
       <div className="space-y-4">
         <h2 className="text-xl font-bold text-foreground">אבני דרך</h2>
