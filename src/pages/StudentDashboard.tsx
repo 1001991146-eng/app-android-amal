@@ -14,9 +14,9 @@ import { cn } from "@/lib/utils";
 const STATUS_ORDER: MilestoneStatus[] = ["not_started", "in_progress", "done"];
 
 const statusStyles: Record<MilestoneStatus, string> = {
-  not_started: "border-slate-300 text-slate-500 dark:border-slate-600 dark:text-slate-400",
-  in_progress: "border-amber-400 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400",
-  done: "border-emerald-400 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400",
+  not_started: "border-border text-muted-foreground",
+  in_progress: "border-warning bg-warning/10 text-warning",
+  done: "border-success bg-success/10 text-success",
 };
 
 const statusIcons: Record<MilestoneStatus, typeof Circle> = {
@@ -32,6 +32,7 @@ const StudentDashboard = () => {
   const [topic, setTopic] = useState("");
   const [loading, setLoading] = useState(true);
   const [savingTopic, setSavingTopic] = useState(false);
+  const [savingStatus, setSavingStatus] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -53,14 +54,17 @@ const StudentDashboard = () => {
 
   const setStatus = async (key: string, status: MilestoneStatus) => {
     if (!user) return;
-    setStatuses((prev) => ({ ...prev, [key]: status }));
+    setSavingStatus(true);
     const { error } = await supabase.from("milestones").upsert(
       { user_id: user.id, milestone_key: key, status, updated_at: new Date().toISOString() },
       { onConflict: "user_id,milestone_key" }
     );
     if (error) {
       toast({ title: "השמירה נכשלה", description: "נסו שוב בעוד רגע", variant: "destructive" });
+    } else {
+      setStatuses((prev) => ({ ...prev, [key]: status }));
     }
+    setSavingStatus(false);
   };
 
   const saveTopic = async () => {
@@ -103,6 +107,7 @@ const StudentDashboard = () => {
         <CardContent>
           <div className="flex gap-2">
             <Input
+              aria-label="נושא הפרויקט"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               placeholder="לדוגמה: אפליקציה לניהול מועדון קריאה"
@@ -138,9 +143,9 @@ const StudentDashboard = () => {
                   <Icon
                     className={cn(
                       "h-6 w-6 mt-0.5 shrink-0",
-                      status === "done" && "text-emerald-500",
-                      status === "in_progress" && "text-amber-500",
-                      status === "not_started" && "text-slate-400"
+                      status === "done" && "text-success",
+                      status === "in_progress" && "text-warning",
+                      status === "not_started" && "text-muted-foreground"
                     )}
                   />
                   <div className="flex-1 space-y-3">
@@ -149,9 +154,13 @@ const StudentDashboard = () => {
                     </Label>
                     <div className="flex flex-wrap gap-2">
                       {STATUS_ORDER.map((s) => (
-                        <button
+                        <Button
                           key={s}
+                          variant="outline"
+                          size="sm"
                           type="button"
+                          disabled={savingStatus}
+                          aria-pressed={status === s}
                           onClick={() => setStatus(m.key, s)}
                           className={cn(
                             "px-3 py-1.5 rounded-full border text-sm transition-all",
@@ -161,7 +170,7 @@ const StudentDashboard = () => {
                           )}
                         >
                           {STATUS_LABELS[s]}
-                        </button>
+                        </Button>
                       ))}
                     </div>
                   </div>
